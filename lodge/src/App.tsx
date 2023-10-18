@@ -1,25 +1,17 @@
-import React from 'react';
-import succotash from './resources/succotash.png';
-import './App.css';
+import SuccotashLogo from './assets/logo.png'
+import './App.css'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-        </p>
-        <a
-          className="App-link"
-          href="https://en.wikipedia.org/wiki/Succotash"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Legendary. Succotash.
+    <>
+      <div>
+        <a href="https://en.wikipedia.org/wiki/Succotash" target="_blank">
+          <img src={SuccotashLogo} className="logo" alt="Succotash Logo" />
         </a>
-        <img src={succotash} alt="Succotash"/>
-      </header>
-    </div>
-  );
+      </div>
+      <h1>Legendary. Succotash</h1>
+    </>
+  )
 }
 
-export default App;
+export default App
