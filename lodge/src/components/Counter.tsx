@@ -1,19 +1,22 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next";
 
 interface ICounterProps{
     val: number
 }
 
 export default function Counter(props: ICounterProps){
-    const [count, setCount] = useState<number>(props.val)
+    const { t } = useTranslation();
+
+    const [value, setValue] = useState<number>(props.val)
 
     const increment = ()=>{
-        setCount(count+1)
+        setValue(value+1)
     }
 
     return (
         <>
-            <button onClick={increment}> Press me (also turn me into an i18n string) {count} </button>
+            <button onClick={increment}> {t("counter.label")} ({t("counter",{count:value})}) {value} </button>
         </>
     )
 }

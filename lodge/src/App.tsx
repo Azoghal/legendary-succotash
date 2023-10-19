@@ -11,7 +11,7 @@ function App() {
         </a>
       </div>
       <h1>Legendary. Succotash</h1>
-      <Counter val={55}/>
+      <Counter val={0}/>
     </>
   )
 }
