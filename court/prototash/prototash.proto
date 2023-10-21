@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "court/prototash";
+
+package prototash;
+
+service Servotash {
+    rpc Recipe(RecipeRequest) returns (RecipeReply) {}
+}
+
+message RecipeRequest{
+    int32 maxTime = 1;
+}
+
+message RecipeReply{
+    repeated string instructions = 1;
+    int32 cookTime = 2;
+}
+
