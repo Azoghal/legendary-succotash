@@ -2,5 +2,6 @@
     "counter.label": "Press Me!",
     "counter_zero": "I'm so empty",
     "counter_one": "I'm just right",
-    "counter_other": "I'm so full"
+    "counter_other": "I'm so full",
+    "button.recipe": "Find me a recipe!"
 }
