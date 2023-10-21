@@ -7,4 +7,16 @@ tasks:
 
   gen:
     cmds:
-      - grpc_tools_node_protoc --js_out=import_style=commonjs,binary:gen/ --grpc_out=grpc_js:./gen/ --proto_path=../court/prototash/ prototash.proto
+      - grpc_tools_node_protoc --js_out=import_style=commonjs,binary:gen/ --grpc_out=grpc_js:./gen --proto_path=../court/prototash/ prototash.proto
+
+  gen-type-defs:
+    cmds:
+      - protoc --plugin="protoc-gen-ts=./node_modules/.bin/protoc-gen-ts" --js_out="import_style=commonjs,binary:./gen" --ts_out="./gen" --proto_path=../court/prototash/ prototash.proto
+
+  gen-ts-stubs:
+    cmds:
+      - protoc --plugin="protoc-gen-ts=./node_modules/.bin/protoc-gen-ts" --js_out="import_style=commonjs,binary:./gen" --ts_out="service=grpc-web:./gen" --proto_path=../court/prototash/ prototash.proto
+
+  gen-ts-stubs-node:
+    cmds:
+      - protoc --plugin="protoc-gen-ts=./node_modules/.bin/protoc-gen-ts" --plugin=protoc-gen-grpc=./node_modules/.bin/grpc_tools_node_protoc_plugin --js_out="import_style=commonjs,binary:./gen" --ts_out="service=grpc-node:./gen" --grpc_out="./gen" --proto_path=../court/prototash/ prototash.proto
