@@ -7,7 +7,7 @@ tasks:
 
   clean:
     cmds:
-      - rm -r ./gen
+      - rm ./gen/*
 
   gen:
     cmds:

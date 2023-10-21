@@ -4,11 +4,14 @@ import { useTranslation } from "react-i18next";
 // import {ServotashClient} from "../../gen/prototash_pb_service.js" 
 import {ServotashClient} from "../../gen/prototash_grpc_pb"
 import grpc from "@grpc/grpc-js"
-import { RecipeRequest, RecipeReply } from "../../gen/prototash_pb";
+import { RecipeRequest, RecipeReply } from "../../gen/prototash_pb.js";
 
 interface IRecipeProviderProps{
     
 }
+
+// https://github.com/timostamm/protobuf-ts
+// Vite is not compativle with ts-protoc-gen, must use protobuf-ts instead.
 
 export default function RecipeProvider(_props: IRecipeProviderProps){
     const { t } = useTranslation();
