@@ -1,6 +1,7 @@
 import SuccotashLogo from './assets/logo.png'
 import './App.css'
 import Counter from './components/Counter'
+import RecipeButton from './components/RecipeButton'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       </div>
       <h1>Legendary. Succotash</h1>
       <Counter val={0}/>
+      <RecipeButton/>
     </>
   )
 }
