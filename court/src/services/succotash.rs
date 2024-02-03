@@ -8,7 +8,6 @@ pub fn get_recipes() -> Vec<Recipe> {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
-
 pub struct Recipe {
     pub recipe: String,
 }

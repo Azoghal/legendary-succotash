@@ -1,4 +1,4 @@
-use rocket::serde::json::{json, Json, Value};
+use rocket::serde::json::{json, Value};
 
 use crate::services::succotash;
 
