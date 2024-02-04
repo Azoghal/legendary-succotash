@@ -1,9 +1,7 @@
 use rocket::serde::{Deserialize, Serialize};
 
-pub fn get_recipes() -> Vec<Recipe> {
-    vec![Recipe {
-        recipe: "Step 1: Look up a recipe".to_string(),
-    }]
+pub fn get_recipes() -> Vec<String> {
+    vec!["Step 1: Look up a recipe".to_string()]
 }
 
 #[derive(Serialize, Deserialize, Debug)]

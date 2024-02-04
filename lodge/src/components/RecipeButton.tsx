@@ -7,7 +7,12 @@ export default function RecipeButton(){
     const [value, setValue] = useState<string>("")
 
     const hitApi = ()=>{
-        setValue("bobly")
+        fetch("http://127.0.0.1:8000/api/v1/recipes").then((resp)=>{
+            resp.json()
+        }).then((resp)=>{
+            console.log(resp);
+            setValue(JSON.stringify(resp))
+        })
     }
 
     return (
