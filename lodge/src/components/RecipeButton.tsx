@@ -1,24 +1,23 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next";
+import { newSuccotashClient } from "../services/succotash";
+
 
 export default function RecipeButton(){
     const { t } = useTranslation();
 
-    const [value, setValue] = useState<string>("")
+    const [value, _setValue] = useState<string>("")
+    const [data, setData] = useState<string[]>([]);
 
     const hitApi = ()=>{
-        fetch("http://127.0.0.1:8000/api/v1/recipes").then((resp)=>{
-            resp.json()
-        }).then((resp)=>{
-            console.log(resp);
-            setValue(JSON.stringify(resp))
-        })
+        newSuccotashClient().list().then(resp=>setData(resp.recipes)).catch((e)=>console.error("failed to list succotash recipes: ", e))
     }
 
     return (
         <>
             <button onClick={hitApi}> {t("counter.label")} </button>
             {value && <>{value}</>}
+            <div>{data.map((r)=>(<>{r}</>))}</div>
         </>
     )
 }
