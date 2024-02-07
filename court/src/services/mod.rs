@@ -2,7 +2,6 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
-
 // TODO use crate::models and crate::schema?
 
 pub mod succotash;
