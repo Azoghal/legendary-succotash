@@ -7,6 +7,9 @@ extern crate rocket;
 mod routes;
 mod services;
 
+pub mod models;
+pub mod schema;
+
 #[cfg(test)]
 mod tests;
 

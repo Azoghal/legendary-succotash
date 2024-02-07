@@ -1,16 +1,18 @@
-use rocket::serde::{Deserialize, Serialize};
+use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 
-pub fn get_recipes() -> Recipes {
-    Recipes {
-        recipes: vec![
-            "Step 1: Look up a recipe".to_string(),
-            "Clean Succotash:\nStep 1: Buy an entire country worth of sweetcorn".to_string(),
-        ],
-    }
-}
+// use rocket::serde::{Deserialize, Serialize};
+use super::establish_connection;
+use crate::models::Recipe;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "rocket::serde")]
-pub struct Recipes {
-    pub recipes: Vec<String>,
+pub fn get_recipes() -> Vec<Recipe> {
+    use crate::schema::recipes::dsl::*;
+
+    // TODO lets bang the connection somewhere less repetitive?
+    let connection = &mut establish_connection();
+    recipes
+        .limit(5)
+        .select(Recipe::as_select())
+        .load(connection)
+        .expect("error loading recipes")
+    //TODO handle error case
 }
