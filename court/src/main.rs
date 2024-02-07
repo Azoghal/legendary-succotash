@@ -4,7 +4,6 @@ use std::path::{Path, PathBuf};
 #[macro_use]
 extern crate rocket;
 
-mod db;
 mod routes;
 mod services;
 
