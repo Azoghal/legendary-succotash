@@ -4,5 +4,5 @@ use crate::services::succotash;
 
 #[get("/recipes")]
 pub fn get_recipes() -> Value {
-    json!(succotash::get_recipes())
+    json!({"recipes":succotash::get_recipes()})
 }

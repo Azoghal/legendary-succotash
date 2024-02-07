@@ -1,7 +1,13 @@
 
 // TODO definitely generate these
 export interface Recipes {
-    recipes: string[]
+    recipes: IRecipe[]
+}
+
+export interface IRecipe{
+    id: number;
+    title: string;
+    instructions: string;
 }
 
 // TODO would be nice if we could generate these
