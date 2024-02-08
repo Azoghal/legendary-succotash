@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  db-setup:
+    cmds:
+      - pg_lsclusters
+      - sudo pg_ctlcluster 16 main start
+      - sudo service postgresql restart
+
+  ts-build:
+    dir: lodge/
+    cmds:
+      - npm run build
+
+  rs-build:
+    dir: court/
+    cmds:
+      - cargo build
+
+  build:
+    cmds:
+      - task: ts-build
+      - task: rs-build
+
+  run:
+    dir: court
+    deps:
+      - build
+    cmds:
+      - cargo run
