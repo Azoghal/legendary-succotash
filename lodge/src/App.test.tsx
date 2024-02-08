@@ -1,6 +1,6 @@
-import {expect, describe, it, test} from 'vitest'
+import {expect, describe, it} from 'vitest'
 import {render, screen} from '@testing-library/react'
-import {vi} from 'vitest';
+// import {vi} from 'vitest';
 import App from "./App"
 
 describe('App', ()=>{
