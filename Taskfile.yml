@@ -9,7 +9,7 @@ tasks:
 
   clean:
     cmds:
-      - rm -rf lodge/gen
+      - rm -rf lodge/src/gen
   
   ts-rs-gen:
     dir: court/
@@ -20,8 +20,8 @@ tasks:
     deps: 
       - ts-rs-gen
     cmds:
-      - mkdir -p lodge/gen/types
-      - mv -v court/bindings/* lodge/gen/types
+      - mkdir -p lodge/src/gen/types
+      - mv -v court/bindings/* lodge/src/gen/types
       - rm -d court/bindings
 
   ts-build:
@@ -30,8 +30,6 @@ tasks:
       - ts-gen
     cmds:
       - npm run build
-
-  
 
   rs-build:
     dir: court/

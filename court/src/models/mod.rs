@@ -31,10 +31,7 @@ pub struct Recipe {
 // See ts-rs/example/src/lib.rs
 // TODO Look at various serde-compatibility features in ts-rs
 // TODO look at type renaming e.g. all lowercasing
-// TODO look at where to export to
-// TODO when the env default bindings location is merged, use that
-// TODO sort out generation - it is done with cargo test, but ideally
-// we want a way to run them but only for this file
+// TODO these will be generated any time we run test... which is a bit of a pain
 
 #[derive(Serialize, Deserialize, Debug, TS)]
 #[serde(crate = "rocket::serde")]

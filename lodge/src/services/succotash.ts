@@ -1,14 +1,4 @@
-
-// TODO definitely generate these
-export interface Recipes {
-    recipes: IRecipe[]
-}
-
-export interface IRecipe{
-    id: number;
-    title: string;
-    instructions: string;
-}
+import { Recipes } from "../gen/types/Recipes"
 
 // TODO would be nice if we could generate these
 class SuccotashClient {
