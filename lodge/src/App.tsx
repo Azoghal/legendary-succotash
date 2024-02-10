@@ -2,6 +2,7 @@ import SuccotashLogo from './assets/logo.png'
 import './App.css'
 import Counter from './components/Counter'
 import RecipeButton from './components/RecipeButton'
+import MuiExample from './components/MuiExample'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <h1>Legendary. Succotash</h1>
       <Counter val={0}/>
       <RecipeButton/>
+      <MuiExample/>
     </>
   )
 }
