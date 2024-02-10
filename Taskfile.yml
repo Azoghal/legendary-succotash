@@ -15,19 +15,22 @@ tasks:
     dir: court/
     cmds:
       - cargo test export_bindings
+      - mkdir -p ../lodge/src/gen/types
+      - mv -v bindings/* ../lodge/src/gen/types
+      - rm -d bindings
+    sources:
+      - models/mod.rs
+    generates:
+      - ../lodge/src/gen/types
 
-  ts-gen:
+  gen:
     deps: 
       - ts-rs-gen
-    cmds:
-      - mkdir -p lodge/src/gen/types
-      - mv -v court/bindings/* lodge/src/gen/types
-      - rm -d court/bindings
 
   ts-build:
     dir: lodge/
     deps:
-      - ts-gen
+      - gen
     cmds:
       - npm run build
 
