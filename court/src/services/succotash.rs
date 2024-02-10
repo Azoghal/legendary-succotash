@@ -7,7 +7,7 @@ use crate::models::{Recipe, Recipes};
 pub fn get_recipes() -> Recipes {
     use crate::schema::recipes::dsl::*;
 
-    // TODO lets bang the connection somewhere less repetitive?
+    // TODO lets bang the connection somewhere less repetitive? Like a context for the requests
     let connection = &mut establish_connection();
     let result = recipes
         .limit(5)

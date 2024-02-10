@@ -9,6 +9,7 @@ edition = "2021"
 diesel = { version = "2.1.4", features = ["postgres"] }
 dotenvy = "0.15.7"
 serde_json = "1.0.113"
+ts-rs = "7.1"
 
 [dependencies.rocket]
 version = "0.5.0"

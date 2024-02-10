@@ -1,1 +1,5 @@
 *.png
+
+gen/
+
+.task/
