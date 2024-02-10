@@ -7,10 +7,31 @@ tasks:
       - sudo pg_ctlcluster 16 main start
       - sudo service postgresql restart
 
+  clean:
+    cmds:
+      - rm -rf lodge/gen
+  
+  ts-rs-gen:
+    dir: court/
+    cmds:
+      - cargo test export_bindings
+
+  ts-gen:
+    deps: 
+      - ts-rs-gen
+    cmds:
+      - mkdir -p lodge/gen/types
+      - mv -v court/bindings/* lodge/gen/types
+      - rm -d court/bindings
+
   ts-build:
     dir: lodge/
+    deps:
+      - ts-gen
     cmds:
       - npm run build
+
+  
 
   rs-build:
     dir: court/

@@ -1,10 +1,12 @@
 use diesel::prelude::*;
 use rocket::serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, TS)]
 #[diesel(table_name = crate::schema::recipes)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 #[serde(crate = "rocket::serde")]
+#[ts(export)]
 pub struct Recipe {
     pub id: i32,
     pub title: String,
@@ -26,8 +28,17 @@ pub struct Recipe {
 // But this means that we'd need some basically identity functions that take from DB structs to identical but serialisable frontend structs
 // HM.
 
-#[derive(Serialize, Deserialize, Debug)]
+// See ts-rs/example/src/lib.rs
+// TODO Look at various serde-compatibility features in ts-rs
+// TODO look at type renaming e.g. all lowercasing
+// TODO look at where to export to
+// TODO when the env default bindings location is merged, use that
+// TODO sort out generation - it is done with cargo test, but ideally
+// we want a way to run them but only for this file
+
+#[derive(Serialize, Deserialize, Debug, TS)]
 #[serde(crate = "rocket::serde")]
+#[ts(export)]
 pub struct Recipes {
     pub recipes: Vec<Recipe>,
 }
