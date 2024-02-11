@@ -1,4 +1,4 @@
-button {
+.c-btn {
     border-radius: $border-radius-base;
     border: $border-base;
     border-color: $darkest-grey;
@@ -11,9 +11,13 @@ button {
     background-color: $c-btn-bg;
     cursor: pointer;
     transition: $c-btn-trans;
+
+    &__alternate {
+        background-color: $submit-green;
+    }
 }
 
-button:hover {
+.c-btn:hover {
     border-color: $dark-pink;
 }
 

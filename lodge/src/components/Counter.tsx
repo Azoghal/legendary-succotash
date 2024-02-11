@@ -16,7 +16,7 @@ export default function Counter(props: ICounterProps) {
 
     return (
         <>
-            <button onClick={increment}>
+            <button onClick={increment} className="c-btn">
                 {" "}
                 {t("counter.label")} ({t("counter", { count: value })}) {value}{" "}
             </button>

@@ -16,13 +16,16 @@ export default function RecipeButton() {
                 setData(resp);
             })
             .catch((e) =>
-                console.error("failed to list succotash recipes: ", e),
+                console.error("failed to list succotash recipes: ", e)
             );
     };
 
     return (
         <>
-            <button onClick={hitApi}> {t("counter.label")} </button>
+            <button onClick={hitApi} className="c-btn">
+                {" "}
+                {t("counter.label")}{" "}
+            </button>
             <div>{data && data.recipes.map((r) => <>{r.instructions}</>)}</div>
         </>
     );

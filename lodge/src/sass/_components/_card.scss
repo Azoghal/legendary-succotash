@@ -23,6 +23,11 @@
     &__body {
         font-style: italic;
     }
+
+    &__quick-action {
+        justify-content: flex-end; 
+        display:flex;
+    }
 }
 
 .card-holder {

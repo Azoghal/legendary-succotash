@@ -1,9 +1,13 @@
+import { t } from "i18next";
 import SuccotashLogo from "./assets/logo.png";
 import Card from "./components/Card";
 import Counter from "./components/Counter";
 import RecipeButton from "./components/RecipeButton";
 
 function App() {
+    //TODO remove
+    const bob = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
     return (
         <>
             <header className="c-header">
@@ -18,7 +22,7 @@ function App() {
                             alt="Succotash Logo"
                         />
                     </a>
-                    <h1>Legendary. Succotash</h1>
+                    <h1>{t("title.succotash")}</h1>
                 </div>
                 <div className="c-header-right">
                     <Counter val={0} />
@@ -29,27 +33,14 @@ function App() {
                 {/* https://bulma.io/documentation/columns/options/ */}
                 {/* The above has a cool example where we can have wider or narrower things in each row */}
                 <div className="columns is-multiline is-centered card-holder">
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
-                    <div className="column is-3">
-                        <Card title="Tool 1" body="This tool will do a thing" />
-                    </div>
+                    {bob.map((i) => (
+                        <div className="column is-3">
+                            <Card
+                                title={t("tool.card.title", { count: i })}
+                                body={t("tool.card.desc")}
+                            />
+                        </div>
+                    ))}
                 </div>
             </main>
         </>

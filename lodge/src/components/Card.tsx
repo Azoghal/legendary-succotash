@@ -8,6 +8,9 @@ export default function (props: ICardProps): JSX.Element {
         <div className="card">
             <div className="card__title">{props.title}</div>
             <div className="card__body">{props.body}</div>
+            <div className="card__quick-action">
+                <button className="c-btn c-btn__alternate">Quick Action</button>
+            </div>
         </div>
     );
 }
