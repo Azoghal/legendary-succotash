@@ -1,29 +1,29 @@
 body {
-    background-color: $body-bg;
-    color: $body-colour;
-    font-family: $font-sans;
-    font-size: $font-size;
-    font-variant-ligatures: no-contextual;
-    line-height: $line-height-base;
-    margin: 0;
-};
+  background-color: $body-bg;
+  color: $body-colour;
+  font-family: $font-sans;
+  font-size: $font-size;
+  font-variant-ligatures: no-contextual;
+  line-height: $line-height-base;
+  margin: 0;
+}
 
 a {
-    color: $anchor-colour;
-    text-decoration: none;
+  color: $anchor-colour;
+  text-decoration: none;
 }
 a:hover {
-    color: $main-pink;
+  color: $main-pink;
 }
 
 h1 {
-    font-size: $font-size-h1;
-    font-weight: $font-weight-bold;
+  font-size: $font-size-h1;
+  font-weight: $font-weight-bold;
 }
 
 #root {
-    position:relative;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
 }

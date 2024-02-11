@@ -1,7 +1,7 @@
 {
-    "counter.label": "Press Me!",
-    "counter_zero": "I'm so empty",
-    "counter_one": "I'm just right",
-    "counter_other": "I'm so full",
-    "button.label": "O"
+  "counter.label": "Press Me!",
+  "counter_zero": "I'm so empty",
+  "counter_one": "I'm just right",
+  "counter_other": "I'm so full",
+  "button.label": "O"
 }

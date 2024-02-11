@@ -1,9 +1,9 @@
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import translation from './en/translation.json';
+import i18next from "i18next";
+import { initReactI18next } from "react-i18next";
+import translation from "./en/translation.json";
 
 i18next.use(initReactI18next).init({
-  lng: 'en',
+  lng: "en",
   debug: true,
   resources: {
     en: {
@@ -15,4 +15,4 @@ i18next.use(initReactI18next).init({
   // returnNull: false,
 });
 
-export default i18next
+export default i18next;
