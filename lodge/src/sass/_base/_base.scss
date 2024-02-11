@@ -21,9 +21,8 @@ h1 {
     font-weight: $font-weight-bold;
 }
 
-#root {
-    position: relative;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
+c-page {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
 }

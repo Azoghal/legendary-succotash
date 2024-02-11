@@ -6,8 +6,8 @@ import RecipeButton from "./components/RecipeButton";
 function App() {
     return (
         <>
-            <div>
-                <div>
+            <header className="c-header">
+                <div className="c-header-left">
                     <a
                         href="https://en.wikipedia.org/wiki/Succotash"
                         target="_blank"
@@ -18,10 +18,14 @@ function App() {
                             alt="Succotash Logo"
                         />
                     </a>
+                    <h1>Legendary. Succotash</h1>
                 </div>
-                <h1>Legendary. Succotash</h1>
-                <Counter val={0} />
-                <RecipeButton />
+                <div className="c-header-right">
+                    <Counter val={0} />
+                    <RecipeButton />
+                </div>
+            </header>
+            <main className="c-page">
                 {/* https://bulma.io/documentation/columns/options/ */}
                 {/* The above has a cool example where we can have wider or narrower things in each row */}
                 <div className="columns is-multiline is-centered card-holder">
@@ -47,7 +51,7 @@ function App() {
                         <Card title="Tool 1" body="This tool will do a thing" />
                     </div>
                 </div>
-            </div>
+            </main>
         </>
     );
 }

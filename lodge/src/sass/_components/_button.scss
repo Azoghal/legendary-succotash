@@ -3,6 +3,7 @@ button {
     border: $border-base;
     border-color: $darkest-grey;
     padding: $c-btn-padding;
+    margin: 1em;
     color: $white;
     font-size: $font-size;
     font-weight: $font-weight-regular;
@@ -15,3 +16,4 @@ button {
 button:hover {
     border-color: $dark-pink;
 }
+
