@@ -23,9 +23,15 @@ tasks:
     generates:
       - ../lodge/src/gen/types
 
+  sass-gen:
+    dir: lodge/
+    cmds:
+      - sass -I ./ src/sass/main.scss ./dist/sass.css
+
   gen:
     deps: 
       - ts-rs-gen
+      - sass-gen
 
   ts-build:
     dir: lodge/
