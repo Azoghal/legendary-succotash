@@ -11,6 +11,9 @@ a {
     color: $anchor-colour;
     text-decoration: none;
 }
+a:hover {
+    color: $main-pink;
+}
 
 h1 {
     font-size: $font-size-h1;
