@@ -5,6 +5,7 @@ body {
     font-size: $font-size;
     font-variant-ligatures: no-contextual;
     line-height: $line-height-base;
+    margin: 0;
 };
 
 a {
@@ -18,4 +19,11 @@ a:hover {
 h1 {
     font-size: $font-size-h1;
     font-weight: $font-weight-bold;
+}
+
+#root {
+    position:relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
 }

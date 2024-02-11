@@ -2,15 +2,18 @@
     background-color: $grey;
     border-radius: $border-radius-base;
     border: $border-base;
+    border-color: $darkest-grey;
     color: $white;
     cursor: pointer;
-    height: 100%;
-    padding: 2rem;
+    height: auto;
+    padding: 1em 1em 1em 1em;
+    // margin: auto;
     position: relative;
+    transition: $card-trans;
 
-    // &:hover {
-    //     box-shadow: 0 32px 32px 0 $darkest-grey;
-    // }
+    &:hover {
+        border-color: $dark-pink;
+    }
 
     &__title{
         font-size: $font-size-h1;
@@ -20,4 +23,9 @@
     &__body{
         font-style: italic;
     }
+}
+
+.card-holder {
+    box-sizing: inherit;
+    width: auto;
 }
