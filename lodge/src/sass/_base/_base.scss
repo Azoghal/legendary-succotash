@@ -1,0 +1,18 @@
+body {
+    background-color: $body-bg;
+    color: $body-colour;
+    font-family: $font-sans;
+    font-size: $font-size;
+    font-variant-ligatures: no-contextual;
+    line-height: $line-height-base;
+};
+
+a {
+    color: $anchor-colour;
+    text-decoration: none;
+}
+
+h1 {
+    font-size: $font-size-h1;
+    font-weight: $font-weight-bold;
+}
