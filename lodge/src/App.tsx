@@ -34,7 +34,7 @@ function App() {
                 {/* The above has a cool example where we can have wider or narrower things in each row */}
                 <div className="columns is-multiline is-centered card-holder">
                     {bob.map((i) => (
-                        <div className="column is-3">
+                        <div className="column is-3" key={i}>
                             <Card
                                 title={t("tool.card.title", { count: i })}
                                 body={t("tool.card.desc")}
