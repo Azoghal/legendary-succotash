@@ -26,7 +26,12 @@ export default function RecipeButton() {
                 {" "}
                 {t("counter.label")}{" "}
             </button>
-            <div>{data && data.recipes.map((r) => <>{r.instructions}</>)}</div>
+            <div>
+                {data &&
+                    data.recipes.map((r) => (
+                        <div key={r.id}>{r.instructions}</div>
+                    ))}
+            </div>
         </>
     );
 }

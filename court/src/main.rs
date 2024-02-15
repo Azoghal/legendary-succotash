@@ -1,4 +1,7 @@
 use rocket::fs::NamedFile;
+use rocket::http::Method;
+use rocket_cors;
+
 use std::path::{Path, PathBuf};
 
 #[macro_use]
@@ -25,7 +28,11 @@ async fn files(file: PathBuf) -> Option<NamedFile> {
 
 #[launch]
 fn rocket() -> _ {
+    // TODO come back and fix these
+    let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
+
     rocket::build()
         .mount("/", rocket::routes![files])
         .mount("/api/v1", routes![routes::succotash::get_recipes])
+        .attach(cors)
 }
