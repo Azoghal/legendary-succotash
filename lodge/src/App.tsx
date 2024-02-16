@@ -1,6 +1,5 @@
 import { t } from "i18next";
 import SuccotashLogo from "./assets/logo.png";
-import Card from "./components/Card";
 import Counter from "./components/Counter";
 import RecipeButton from "./components/RecipeButton";
 import ExampleCard from "./components/ExampleCard";

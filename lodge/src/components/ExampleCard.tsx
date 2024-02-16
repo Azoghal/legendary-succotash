@@ -9,6 +9,9 @@ export default function (props: ICardProps): JSX.Element {
     const [artist, setArtist] = useState("");
 
     const getArtistPopularity = useCallback(() => {
+        console.log(
+            `Lets go ask the backend for the popularity of the band: ${artist}`
+        );
         setPopularity(0);
     }, []);
 
@@ -18,9 +21,11 @@ export default function (props: ICardProps): JSX.Element {
             <div className="card__body">
                 <div>
                     <input
+                        type="text"
                         onChange={(e) => setArtist(e.target.value)}
                         value={artist}
-                    ></input>
+                    />
+                    {artist}
                 </div>
                 <div>Popularity: {popularity == -1 ? "..." : popularity}</div>
             </div>
