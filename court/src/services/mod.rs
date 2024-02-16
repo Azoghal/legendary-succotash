@@ -4,6 +4,7 @@ use dotenvy::dotenv;
 use std::env;
 // TODO use crate::models and crate::schema?
 
+pub mod spotify_example;
 pub mod succotash;
 
 pub fn establish_connection() -> PgConnection {
