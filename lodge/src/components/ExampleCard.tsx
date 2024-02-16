@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { newSpotifyExampleClient } from "../services/spotifyExample";
 
 interface ICardProps {
     title: string;
@@ -12,6 +13,14 @@ export default function (props: ICardProps): JSX.Element {
         console.log(
             `Lets go ask the backend for the popularity of the band: ${artist}`
         );
+
+        newSpotifyExampleClient()
+            .get("not a valid id")
+            .then(() => console.log("how did that work"))
+            .catch((e) => {
+                console.log("well of course it didnt work: " + e);
+            });
+
         setPopularity(0);
     }, []);
 
