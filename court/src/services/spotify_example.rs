@@ -1,3 +1,3 @@
-pub fn get_artist_name() -> String {
-    "Not implemented".to_string()
+pub fn get_artist_popularity() -> i32 {
+    67
 }

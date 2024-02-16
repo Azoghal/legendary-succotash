@@ -37,7 +37,7 @@ fn rocket() -> _ {
             "/api/v1",
             routes![
                 routes::succotash::get_recipes,
-                routes::spotify_example::get_artist_name
+                routes::spotify_example::get_artist_popularity
             ],
         )
         .attach(cors)
