@@ -39,3 +39,10 @@ pub struct Recipe {
 pub struct Recipes {
     pub recipes: Vec<Recipe>,
 }
+
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[serde(crate = "rocket::serde")]
+#[ts(export)]
+pub struct Popularity {
+    pub popularity: i32,
+}
