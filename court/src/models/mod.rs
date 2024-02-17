@@ -44,5 +44,5 @@ pub struct Recipes {
 #[serde(crate = "rocket::serde")]
 #[ts(export)]
 pub struct Popularity {
-    pub popularity: i32,
+    pub popularity: u32,
 }

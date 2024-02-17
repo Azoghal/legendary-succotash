@@ -17,13 +17,9 @@ export default function (props: ICardProps): JSX.Element {
         newSpotifyExampleClient()
             .get("not a valid id")
             .then((resp) => {
-                console.log("how did that work");
                 setPopularity(resp.popularity);
             })
-            .catch((e) => {
-                console.log("well of course it didnt work: " + e);
-                setPopularity(0);
-            });
+            .catch((e) => console.log(e));
     }, []);
 
     return (
