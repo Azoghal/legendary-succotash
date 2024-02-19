@@ -1,11 +1,11 @@
 import { useCallback, useState } from "react";
 import { newSpotifyExampleClient } from "../services/spotifyExample";
 
-interface ICardProps {
+interface IExampleCardProps {
     title: string;
 }
 
-export default function (props: ICardProps): JSX.Element {
+export default function (props: IExampleCardProps): JSX.Element {
     const [popularity, setPopularity] = useState<number>(-1);
     const [artist, setArtist] = useState("");
 
