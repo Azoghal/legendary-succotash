@@ -15,12 +15,12 @@ export default function (props: ICardProps): JSX.Element {
         );
 
         newSpotifyExampleClient()
-            .get("not a valid id")
+            .get(artist)
             .then((resp) => {
                 setPopularity(resp.popularity);
             })
             .catch((e) => console.log(e));
-    }, []);
+    }, [artist]);
 
     return (
         <div className="card">

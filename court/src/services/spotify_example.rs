@@ -11,7 +11,7 @@ pub async fn get_artist_popularity(id: &str) -> Result<Popularity, ()> {
         .await
         .expect("failed to get bearer token");
 
-    let artist = ArtistId::from_id("0YrtvWJMgSdVrk3SfNjTbx").expect("failed to get artist id");
+    let artist = ArtistId::from_id(id).expect("failed to get artist id");
     let res = spotify
         .artist(artist)
         .await
