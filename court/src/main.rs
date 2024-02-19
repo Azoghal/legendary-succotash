@@ -33,6 +33,12 @@ fn rocket() -> _ {
 
     rocket::build()
         .mount("/", rocket::routes![files])
-        .mount("/api/v1", routes![routes::succotash::get_recipes])
+        .mount(
+            "/api/v1",
+            routes![
+                routes::succotash::get_recipes,
+                routes::spotify_example::get_artist_popularity
+            ],
+        )
         .attach(cors)
 }

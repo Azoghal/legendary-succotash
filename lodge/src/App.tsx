@@ -1,13 +1,10 @@
 import { t } from "i18next";
 import SuccotashLogo from "./assets/logo.png";
-import Card from "./components/Card";
 import Counter from "./components/Counter";
 import RecipeButton from "./components/RecipeButton";
+import ExampleCard from "./components/ExampleCard";
 
 function App() {
-    //TODO remove
-    const bob = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
     return (
         <>
             <header className="c-header">
@@ -33,14 +30,11 @@ function App() {
                 {/* https://bulma.io/documentation/columns/options/ */}
                 {/* The above has a cool example where we can have wider or narrower things in each row */}
                 <div className="columns is-multiline is-centered card-holder">
-                    {bob.map((i) => (
-                        <div className="column is-3" key={i}>
-                            <Card
-                                title={t("tool.card.title", { count: i })}
-                                body={t("tool.card.desc")}
-                            />
-                        </div>
-                    ))}
+                    <div className="column is-3" key={1}>
+                        <ExampleCard
+                            title={t("tool.card.title", { count: 1 })}
+                        />
+                    </div>
                 </div>
             </main>
         </>
