@@ -9,7 +9,7 @@ export default function ExampleCard(props: IExampleCardProps): JSX.Element {
     const [popularity, setPopularity] = useState<number>(-1);
     const [artist, setArtist] = useState("");
 
-    const [bob, setBob] = useState("fella");
+    const [bob2, setBob] = useState("fella");
 
     const getArtistPopularity = useCallback(() => {
         console.log(
