@@ -1,6 +1,4 @@
 use rocket::fs::NamedFile;
-use rocket::http::Method;
-use rocket_cors;
 
 use std::path::{Path, PathBuf};
 
