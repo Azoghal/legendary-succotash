@@ -5,7 +5,7 @@ interface IExampleCardProps {
     title: string;
 }
 
-export default function (props: IExampleCardProps): JSX.Element {
+export default function ExampleCard(props: IExampleCardProps): JSX.Element {
     const [popularity, setPopularity] = useState<number>(-1);
     const [artist, setArtist] = useState("");
 

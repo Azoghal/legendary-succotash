@@ -3,7 +3,7 @@ interface ICardProps {
     body: string;
 }
 
-export default function (props: ICardProps): JSX.Element {
+export default function Card(props: ICardProps): JSX.Element {
     return (
         <div className="card">
             <div className="card__title">{props.title}</div>
