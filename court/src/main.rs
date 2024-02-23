@@ -2,10 +2,7 @@ use rocket::fs::NamedFile;
 use rocket::tokio;
 use rspotify::{ClientCredsSpotify, Credentials};
 
-use std::{
-    future,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 #[macro_use]
 extern crate rocket;
