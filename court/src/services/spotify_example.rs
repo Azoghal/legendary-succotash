@@ -1,21 +1,8 @@
 use crate::{models::Popularity, SpotifyApi};
 
-use rocket::State;
 use rspotify::{clients::BaseClient, model::ArtistId};
 
-pub async fn get_artist_popularity(
-    id: &str,
-    spotify: &State<SpotifyApi>,
-) -> Result<Popularity, ()> {
-    // let creds = Credentials::from_env().expect("failed to get credentials from env");
-    // let spotify = ClientCredsSpotify::new(creds);
-
-    spotify
-        .client
-        .request_token()
-        .await
-        .expect("failed to get bearer token");
-
+pub async fn get_artist_popularity(id: &str, spotify: &SpotifyApi) -> Result<Popularity, ()> {
     let artist = ArtistId::from_id(id).expect("failed to get artist id");
     let res = spotify
         .client
