@@ -1,6 +1,6 @@
 use rocket::fs::NamedFile;
-use rocket::http::Method;
-use rocket_cors;
+use rocket::tokio;
+use rspotify::{ClientCredsSpotify, Credentials};
 
 use std::path::{Path, PathBuf};
 
@@ -26,12 +26,34 @@ async fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(path).await.ok()
 }
 
+struct SpotifyApi {
+    client: ClientCredsSpotify,
+}
+
+impl SpotifyApi {
+    // use macro to make blocking so we can just call it easily on server startup.
+    #[rocket::tokio::main]
+    async fn new() -> Self {
+        let creds = Credentials::from_env().expect("failed to get credentials from env");
+        let client = ClientCredsSpotify::new(creds);
+
+        client
+            .request_token()
+            .await
+            .expect("failed to get spotify token");
+
+        SpotifyApi { client }
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
-    // TODO come back and fix these
+    // TODO come back and fix the cors rules
     let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
+    let spotify = SpotifyApi::new();
 
     rocket::build()
+        .manage(spotify)
         .mount("/", rocket::routes![files])
         .mount(
             "/api/v1",
