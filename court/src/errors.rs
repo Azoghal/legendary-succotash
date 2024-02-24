@@ -9,9 +9,6 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("placeholder error")]
-    Placeholder(String),
-
     #[error("SpotifyId Error {source:?}")]
     SpotifyId {
         #[from]
