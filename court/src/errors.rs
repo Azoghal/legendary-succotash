@@ -4,6 +4,7 @@ use rocket::{
     Request,
 };
 use rspotify::model::IdError;
+use rspotify_http;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -35,8 +36,42 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
         // log `self` to your favored error tracker, e.g.
         // sentry::capture_error(&self);
 
+        // TODO do some more rigorous eror mapping e.g. of http errors from rspotify into the equivalent rocket ones
+
+        fn map_spotify_client_http_error<'a>(
+            err: rspotify_http::HttpError,
+            req: &Request,
+        ) -> Result<rocket::Response<'a>, Status> {
+            match err {
+                rspotify_http::HttpError::Client(e) => {
+                    error!("{e:?}");
+                    // TODO match here for more granularity?
+                    Status::BadRequest.respond_to(req)
+                }
+                rspotify_http::HttpError::StatusCode(response) => {
+                    error!("{response:?}");
+                    let code = response.status().as_u16();
+                    // TODO extend these cases
+                    match code {
+                        400 => Status::BadRequest.respond_to(req),
+                        _ => Status::InternalServerError.respond_to(req),
+                    }
+                }
+            }
+        }
+
         match self {
-            // in our simplistic example, we're happy to respond with the default 500 responder in all cases
+            Error::SpotifyId { source } => {
+                error!("{source:?}");
+                Status::BadRequest.respond_to(req)
+            }
+            Error::SpotifyClient { source } => match source {
+                rspotify::ClientError::Http(error) => map_spotify_client_http_error(*error, req),
+                _ => {
+                    error!("{source:?}");
+                    Status::InternalServerError.respond_to(req)
+                }
+            },
             _ => Status::InternalServerError.respond_to(req),
         }
     }
