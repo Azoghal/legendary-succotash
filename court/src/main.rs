@@ -10,6 +10,7 @@ extern crate rocket;
 mod routes;
 mod services;
 
+pub mod errors;
 pub mod models;
 pub mod schema;
 
