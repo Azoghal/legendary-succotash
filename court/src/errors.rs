@@ -33,8 +33,6 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
         // log `self` to your favored error tracker, e.g.
         // sentry::capture_error(&self);
 
-        // TODO do some more rigorous eror mapping e.g. of http errors from rspotify into the equivalent rocket ones
-
         fn map_spotify_client_http_error<'a>(
             err: rspotify_http::HttpError,
             req: &Request,
