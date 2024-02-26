@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { newSpotifyExampleClient } from "../services/spotifyExample";
+import { newSpotifyExampleClient } from "../../services/spotifyExample";
 
 interface IExampleCardProps {
     title: string;
