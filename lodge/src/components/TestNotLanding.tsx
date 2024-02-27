@@ -1,6 +1,7 @@
 import React from "react";
 import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
+import TabContainer from "./gui/TabContainer";
 
 export default function TestNotLanding(): React.JSX.Element {
     return (
@@ -21,7 +22,7 @@ export default function TestNotLanding(): React.JSX.Element {
                 </div>
             </header>
             <main className="c-page">
-                <div>Imagine a really cool thing here.</div>
+                <TabContainer tabTitles={["first_tab", "second_tab"]} />
             </main>
         </>
     );
