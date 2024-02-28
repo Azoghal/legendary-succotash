@@ -35,8 +35,8 @@
 
     padding: 0em 1em 0em 1em;
 
-    &__active {
-        border-color: pink;
+    &__selected {
+        border-color: black;
         background-color: $light-grey;
     }
 
@@ -60,5 +60,5 @@
 
     height: 100%;
 
-
+    padding: 1em;
 }
