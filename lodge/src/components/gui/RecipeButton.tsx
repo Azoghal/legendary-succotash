@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { newSuccotashClient } from "../services/succotash";
-import { Recipes } from "../gen/types/Recipes";
+import { newSuccotashClient } from "../../services/succotash";
+import { Recipes } from "../../gen/types/Recipes";
 
 export default function RecipeButton() {
     const { t } = useTranslation();
