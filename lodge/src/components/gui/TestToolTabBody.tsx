@@ -1,10 +1,6 @@
 import { useMemo, useState } from "react";
 import TabContainer from "./TabContainer";
 
-// interface _ITestToolTabBodyProps {
-//     tabTitles: string[];
-// }
-
 const tabTitles = ["Tool", "Settings"];
 
 export default function TestToolTabBody(): JSX.Element {

@@ -5,7 +5,6 @@ interface ITabContainerProps {
     tabTitles: string[];
     activeTab: string;
     onTabchange(newTab: string): void;
-    // components: JSX.Element[];
 }
 
 export default function TabContainer(
