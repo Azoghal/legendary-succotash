@@ -1,7 +1,10 @@
 use rocket::fs::NamedFile;
-use rocket::tokio;
+use rocket::http::{Cookie, CookieJar, Status};
+use rocket::{tokio, State};
+
 use rspotify::{ClientCredsSpotify, Credentials};
 
+use std::env::VarError;
 use std::path::{Path, PathBuf};
 
 #[macro_use]
@@ -52,10 +55,11 @@ fn rocket() -> _ {
     // TODO come back and fix the cors rules
     let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
     let spotify = SpotifyApi::new();
+    let auth0 = routes::auth0::Auth0::from_env().unwrap();
 
     rocket::build()
         .manage(spotify)
-        .mount("/", rocket::routes![files])
+        .manage(auth0) // TODO we actually need to not do this because secrets
         .mount(
             "/api/v1",
             routes![
@@ -63,5 +67,6 @@ fn rocket() -> _ {
                 routes::spotify_example::get_artist_popularity
             ],
         )
+        .mount("/", routes![files, routes::auth0::auth0_redirect])
         .attach(cors)
 }
