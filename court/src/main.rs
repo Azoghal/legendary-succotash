@@ -67,6 +67,14 @@ fn rocket() -> _ {
                 routes::spotify_example::get_artist_popularity
             ],
         )
-        .mount("/", routes![files, routes::auth0::auth0_redirect])
+        .mount(
+            "/",
+            routes![
+                files,
+                routes::auth0::auth0_redirect,
+                routes::auth0::auth0_callback,
+                routes::auth0::logged_in
+            ],
+        )
         .attach(cors)
 }
