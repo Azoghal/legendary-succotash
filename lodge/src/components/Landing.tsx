@@ -1,9 +1,8 @@
 import React from "react";
 import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
-import Counter from "./gui/Counter";
-import RecipeButton from "./gui/RecipeButton";
 import ExampleCard from "./gui/ExampleCard";
+import LoginButton from "./gui/LoginButton";
 
 export default function Landing(): React.JSX.Element {
     return (
@@ -23,8 +22,7 @@ export default function Landing(): React.JSX.Element {
                     <h1>{t("title.succotash")}</h1>
                 </div>
                 <div className="c-header-right">
-                    <Counter val={0} />
-                    <RecipeButton />
+                    <LoginButton />
                 </div>
             </header>
             <main className="c-page">
