@@ -166,10 +166,10 @@ struct TokenRequest {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 struct TokenResponse {
-    // access_token: String,
-    // expires_in: u32,
-    // id_token: String,
-    // token_type: String,
+    access_token: String,
+    expires_in: u32,
+    id_token: String,
+    token_type: String,
 }
 
 #[derive(Serialize, Deserialize)]
