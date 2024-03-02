@@ -17,17 +17,18 @@ pub struct Recipe {
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewUser<'a> {
-    // pub id: u32,
     pub name: &'a str,
+    pub auth0subject: &'a str,
 }
 
 // TODO probably want to add TS
-#[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 #[serde(crate = "rocket::serde")]
 pub struct User {
     pub id: i32,
+    pub auth0subject: String,
     pub name: String,
 }
 
