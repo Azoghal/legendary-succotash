@@ -34,10 +34,10 @@ pub fn auth0_redirect(
 // contains code and state.
 // state should be same as we sent
 #[get("/callback?<code>&<state>")]
-pub fn auth0_callback(
+pub async fn auth0_callback(
     code: String,
     state: String,
-    cookies: &CookieJar,
+    cookies: &CookieJar<'_>,
     // db: State<DB>,
     settings: &State<Auth0>,
 ) -> Result<response::Redirect, Status> {
@@ -54,25 +54,33 @@ pub fn auth0_callback(
     cookies.remove("state");
 
     let token_request = settings.create_token_request(&code);
-    let endpoint = format!("https://{}/oath/token", settings.auth0_tenant_domain);
-    let client = reqwest::blocking::Client::new();
+    let endpoint = format!("https://{}/oauth/token", settings.auth0_tenant_domain);
+    let client = reqwest::Client::new();
 
     let Ok(resp_json) = client
         .post(endpoint)
         .header("Content-Type", "application/json")
         .json(&token_request)
         .send()
+        .await
     else {
         error!("failed to send token request");
         return Err(rocket::http::Status::BadRequest);
     };
 
-    let Ok(resp): Result<TokenResponse, reqwest::Error> = resp_json.json() else {
-        error!("failed to deserialize token response");
-        return Err(rocket::http::Status::BadRequest);
-    };
+    info!("resp_json {:?}", resp_json);
 
-    info!("the response {:?}", resp);
+    let resp = resp_json.json::<TokenResponse>().await;
+
+    match resp {
+        Ok(r) => {
+            info!("it worked {:?}", r)
+        }
+        Err(e) => {
+            error!("failed to deserialize token response {:?}", e);
+            return Err(rocket::http::Status::BadRequest);
+        }
+    }
 
     // // TODO: Can we unwrap here because we know for certain we've populated the cert in the db?
     // let pub_key: Vec<u8> = db.get(b"jwt_pub_key_pem").unwrap().unwrap().to_vec();
@@ -158,10 +166,10 @@ struct TokenRequest {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "rocket::serde")]
 struct TokenResponse {
-    access_token: String,
-    expires_in: u32,
-    id_token: String,
-    token_type: String,
+    // access_token: String,
+    // expires_in: u32,
+    // id_token: String,
+    // token_type: String,
 }
 
 #[derive(Serialize, Deserialize)]
