@@ -1,12 +1,11 @@
 use std::env::VarError;
 
-use rand::distributions::DistString;
 use rand::Rng;
-use rocket::http::{uri, Cookie, CookieJar, SameSite, Status};
+use rocket::http::{Cookie, CookieJar, SameSite, Status};
 use rocket::response;
+use rocket::serde::{json::Json, Deserialize, Serialize};
 use rocket::State;
 
-/// Helper to create a random string 30 chars long.
 pub fn random_state_string() -> String {
     use rand::{distributions::Alphanumeric, thread_rng};
     let mut rng = thread_rng();
@@ -21,10 +20,10 @@ pub fn auth0_redirect(
 ) -> Result<response::Redirect, Status> {
     // TODO make an actual random string
     let state = random_state_string();
-    let my_cookie = Cookie::build(("state", state.clone())).same_site(SameSite::Lax);
-    cookies.add(my_cookie); // try samesite lax because of 127 vs localhost?
+    let my_cookie = Cookie::build(("state", state.clone())).same_site(SameSite::Lax); // might be able to get rid of samesite lax if hosted properly
+    cookies.add(my_cookie);
     let uri = format!("https://{}/authorize?response_type=code&client_id={}&redirect_uri={}&scope=openid%20profile&state={}",
-        settings.auth0_domain,
+        settings.auth0_tenant_domain,
         settings.client_id,
         &settings.redirect_uri,
         state);
@@ -40,7 +39,7 @@ pub fn auth0_callback(
     state: String,
     cookies: &CookieJar,
     // db: State<DB>,
-    // settings: &State<Auth0>,
+    settings: &State<Auth0>,
 ) -> Result<response::Redirect, Status> {
     let cook = cookies.get_pending("state");
     info!("{:?}", cook);
@@ -54,24 +53,26 @@ pub fn auth0_callback(
     }
     cookies.remove("state");
 
-    // let tr = settings.token_request(&code);
+    let token_request = settings.create_token_request(&code);
+    let endpoint = format!("https://{}/oath/token", settings.auth0_tenant_domain);
+    let client = reqwest::blocking::Client::new();
 
-    // // TODO: The call to /oauth/token can panic if there are any misconfigurations: The wrong
-    // // secret, for instance; also, if the user is unauthorized. We need a nicer way to handle
-    // // unauthorized here. Also, we need a nicer way to debug the response. We deserialize directly
-    // // into a TokenResponse, but the auth0 api will return this in the event of misconfiguration:
-    // //   "{\"error\":\"access_denied\",\"error_description\":\"Unauthorized\"}"
-    // let token_endpoint = format!("https://{}/oauth/token", settings.auth0_domain);
-    // println!("token endpoint time: {:?}", token_endpoint);
-    // let client = reqwest::Client::new();
-    // let resp: TokenResponse = client
-    //     .post(&token_endpoint)
-    //     .header("Content-Type", "application/json")
-    //     .body(to_vec(&tr).unwrap())
-    //     .send()
-    //     .unwrap()
-    //     .json()
-    //     .expect("could not deserialize response from /oauth/token");
+    let Ok(resp_json) = client
+        .post(endpoint)
+        .header("Content-Type", "application/json")
+        .json(&token_request)
+        .send()
+    else {
+        error!("failed to send token request");
+        return Err(rocket::http::Status::BadRequest);
+    };
+
+    let Ok(resp): Result<TokenResponse, reqwest::Error> = resp_json.json() else {
+        error!("failed to deserialize token response");
+        return Err(rocket::http::Status::BadRequest);
+    };
+
+    info!("the response {:?}", resp);
 
     // // TODO: Can we unwrap here because we know for certain we've populated the cert in the db?
     // let pub_key: Vec<u8> = db.get(b"jwt_pub_key_pem").unwrap().unwrap().to_vec();
@@ -117,7 +118,7 @@ pub struct Auth0 {
     client_id: String,
     client_secret: String,
     redirect_uri: String,
-    auth0_domain: String,
+    auth0_tenant_domain: String,
 }
 
 impl Auth0 {
@@ -127,8 +128,48 @@ impl Auth0 {
             client_id: std::env::var("AUTH0_CLIENT_ID")?,
             client_secret: std::env::var("AUTH0_CLIENT_SECRET")?,
             redirect_uri: std::env::var("AUTH0_REDIRECT_URI")?,
-            auth0_domain: std::env::var("AUTH0_DOMAIN")?,
+            auth0_tenant_domain: std::env::var("AUTH0_DOMAIN")?,
         };
         Ok(app_settings)
     }
+
+    // make mame a token request with our secret and the code recieved from auth0
+    fn create_token_request(&self, code: &str) -> TokenRequest {
+        TokenRequest {
+            grant_type: String::from("authorization_code"),
+            client_id: self.client_id.clone(),
+            client_secret: self.client_secret.clone(),
+            code: code.to_string(),
+            redirect_uri: self.redirect_uri.clone(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct TokenRequest {
+    grant_type: String,
+    client_id: String,
+    client_secret: String,
+    code: String,
+    redirect_uri: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(crate = "rocket::serde")]
+struct TokenResponse {
+    access_token: String,
+    expires_in: u32,
+    id_token: String,
+    token_type: String,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Auth0JWTPayload {
+    email: String,
+    user_id: String,
+    exp: i64,
+    iss: String,
+    aud: String,
 }
