@@ -1,6 +1,5 @@
 use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 
-// use rocket::serde::{Deserialize, Serialize};
 use super::establish_connection;
 use crate::errors;
 use crate::models::{Recipe, Recipes};

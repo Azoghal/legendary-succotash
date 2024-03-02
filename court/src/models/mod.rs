@@ -13,6 +13,24 @@ pub struct Recipe {
     pub instructions: String,
 }
 
+#[derive(Insertable, Debug)]
+#[diesel(table_name = crate::schema::users)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct NewUser<'a> {
+    // pub id: u32,
+    pub name: &'a str,
+}
+
+// TODO probably want to add TS
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = crate::schema::users)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(crate = "rocket::serde")]
+pub struct User {
+    pub id: i32,
+    pub name: String,
+}
+
 // TODO Think a good approach is to determine some sort of naming convention
 // or *namespacing* for structs that will be returned to the routes
 
@@ -32,7 +50,6 @@ pub struct Recipe {
 // TODO Look at various serde-compatibility features in ts-rs
 // TODO look at type renaming e.g. all lowercasing
 // TODO these will be generated any time we run test... which is a bit of a pain
-
 #[derive(Serialize, Deserialize, Debug, TS)]
 #[serde(crate = "rocket::serde")]
 #[ts(export)]
