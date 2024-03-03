@@ -39,6 +39,12 @@ pub enum Error {
         source: rocket::serde::json::serde_json::Error,
     },
 
+    #[error("reqwest error {source:?}")]
+    ReqwestError {
+        #[from]
+        source: reqwest::Error,
+    },
+
     #[error("currently no sensible succotash error for: `{0}`")]
     Placeholder(String),
 }

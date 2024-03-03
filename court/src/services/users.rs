@@ -53,7 +53,13 @@ pub fn get_or_create_user(new_user: NewUser) -> Result<User, errors::Error> {
     let user_option = get_user_by_auth0_subject(new_user.auth0subject)?;
 
     match user_option {
-        Some(user) => Ok(user),
-        None => create_user(new_user),
+        Some(user) => {
+            info!("existing user login");
+            Ok(user)
+        }
+        None => {
+            info!("new user added and logged in");
+            create_user(new_user)
+        }
     }
 }
