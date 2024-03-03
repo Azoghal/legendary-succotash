@@ -6,7 +6,9 @@ use std::env;
 
 pub mod spotify_example;
 pub mod succotash;
+pub mod users;
 
+// TODO we want to move this towards being a fairing or something?
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 

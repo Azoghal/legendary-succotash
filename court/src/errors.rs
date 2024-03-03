@@ -26,6 +26,27 @@ pub enum Error {
         #[from]
         source: diesel::result::Error,
     },
+
+    #[error("jsonwebtoken error {source:?}")]
+    JWTError {
+        #[from]
+        source: jsonwebtoken::errors::Error,
+    },
+
+    #[error("serializing/deserializing error {source:?}")]
+    SerdeError {
+        #[from]
+        source: rocket::serde::json::serde_json::Error,
+    },
+
+    #[error("reqwest error {source:?}")]
+    ReqwestError {
+        #[from]
+        source: reqwest::Error,
+    },
+
+    #[error("currently no sensible succotash error for: `{0}`")]
+    Placeholder(String),
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
