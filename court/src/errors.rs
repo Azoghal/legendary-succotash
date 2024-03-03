@@ -33,6 +33,12 @@ pub enum Error {
         source: jsonwebtoken::errors::Error,
     },
 
+    #[error("serializing/deserializing error {source:?}")]
+    SerdeError {
+        #[from]
+        source: rocket::serde::json::serde_json::Error,
+    },
+
     #[error("currently no sensible succotash error for: `{0}`")]
     Placeholder(String),
 }
