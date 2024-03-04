@@ -3,6 +3,7 @@ import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
 import ExampleCard from "./gui/ExampleCard";
 import LoginButton from "./gui/LoginButton";
+import { newSpotifyExampleClient } from "../services/spotifyExample";
 
 export default function Landing(): React.JSX.Element {
     return (
@@ -23,6 +24,12 @@ export default function Landing(): React.JSX.Element {
                 </div>
                 <div className="c-header-right">
                     <LoginButton />
+                    <button
+                        className="c-btn"
+                        onClick={newSpotifyExampleClient().session_test}
+                    >
+                        check session
+                    </button>
                 </div>
             </header>
             <main className="c-page">

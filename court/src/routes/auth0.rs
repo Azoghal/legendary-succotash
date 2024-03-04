@@ -1,14 +1,15 @@
-use std::env::VarError;
+use std::env::VarError; // TODO remove
 
-use jsonwebtoken::{
-    decode, decode_header, jwk, jwk::AlgorithmParameters, Algorithm, DecodingKey, Header,
-    Validation,
-};
-use rand::Rng;
 use rocket::http::{Cookie, CookieJar, SameSite, Status};
 use rocket::response;
-use rocket::serde::{json, Deserialize, Serialize};
+use rocket::serde::{Deserialize, Serialize};
 use rocket::State;
+
+use crypto_hash::hex_digest;
+use jsonwebtoken::{
+    decode, decode_header, jwk, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
+};
+use rand::Rng;
 
 use crate::errors;
 use crate::models::NewUser;
@@ -78,20 +79,18 @@ pub async fn auth0_callback(
 
     info!("resp_json {:?}", resp_json);
 
-    let resp = resp_json.json::<TokenResponse>().await;
-
-    let claims = match resp {
-        Ok(r) => {
-            let Ok(token) = decode_jwt(r, settings).await else {
-                error!("failed to decode token");
-                return Err(rocket::http::Status::BadRequest);
-            };
-            token
-        }
+    let resp = match resp_json.json::<TokenResponse>().await {
+        Ok(r) => r,
         Err(e) => {
-            error!("failed to deserialize token response {:?}", e);
-            return Err(rocket::http::Status::BadRequest);
+            error!("failed to parse TokenResponse json");
+            return Err(rocket::http::Status::InternalServerError);
         }
+    };
+    let jwt = resp.id_token;
+
+    let Ok(claims) = decode_jwt(&jwt, settings).await else {
+        error!("failed to decode token");
+        return Err(rocket::http::Status::BadRequest);
     };
 
     let user = NewUser {
@@ -104,22 +103,25 @@ pub async fn auth0_callback(
     };
 
     info!("the user that logged in: {:?}", user);
-    // let jwt = &resp.id_token.clone();
-    // let hashed_jwt = hex_digest(HashAlgorithm::SHA256, jwt.as_bytes());
-    // let new_session = Session {
-    //     user_id: user.user_id,
-    //     expires: payload.exp,
-    //     raw_jwt: jwt.as_bytes().to_vec(),
-    // };
-    // let encoded_session = serialize(&new_session).map_err(|_| Status::Unauthorized)?;
-    // let session_key = make_key!("sessions/", hashed_jwt.clone());
-    // db.set(session_key.0, encoded_session).unwrap();
-    // let cookie = Cookie::build("session", hashed_jwt)
-    //     .path("/")
-    //     .secure(true)
-    //     .http_only(true)
-    //     .finish();
-    // cookies.add(cookie);
+
+    // let hashed_jwt = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
+    let new_session = Session {
+        user_id: user.id,
+        expires: claims.exp,
+        raw_jwt: jwt.clone().as_bytes().to_vec(),
+    };
+
+    // TODO work out how we want to do sessions
+    // the cookie value should probably be hashed jwt
+    // and we can whack the session into the db in some place
+
+    // for now we'll just whack what we want in plain text. Secure :)
+    let cookie = Cookie::build(("session", user.clone().auth0subject))
+        .same_site(SameSite::Lax)
+        .path("/")
+        .secure(true)
+        .http_only(true);
+    cookies.add(cookie);
 
     Ok(response::Redirect::to("/loggedin"))
 }
@@ -207,11 +209,8 @@ async fn get_jwks(settings: &State<Auth0>) -> Result<jwk::JwkSet, errors::Error>
     Ok(jwks)
 }
 
-async fn decode_jwt(
-    token_response: TokenResponse,
-    settings: &State<Auth0>,
-) -> Result<IdTokenClaims, errors::Error> {
-    let header = decode_header(&token_response.id_token)?;
+async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims, errors::Error> {
+    let header = decode_header(jwt)?;
     let kid = match header.kid {
         Some(k) => {
             info!("kid from header: {k}");
@@ -232,8 +231,7 @@ async fn decode_jwt(
                 let mut validation = Validation::new(Algorithm::RS256);
                 validation.set_audience(&[&settings.client_id]);
                 validation.validate_exp = false;
-                let decoded_token =
-                    decode::<IdTokenClaims>(&token_response.id_token, &decoding_key, &validation);
+                let decoded_token = decode::<IdTokenClaims>(jwt, &decoding_key, &validation);
                 println!("{:?}", decoded_token);
                 let token_claims = match decoded_token {
                     Ok(t) => t,
@@ -250,4 +248,44 @@ async fn decode_jwt(
     }
 }
 
-// TODO Use my errors throughout this file. Maybe not so necessary for the routes that return statuses
+// we whack a session in a cookie, that we can then grab on the frontend
+struct Session {
+    user_id: i32,
+    expires: usize,
+    raw_jwt: Vec<u8>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct SessionUser {
+    pub user_sub: String,
+    pub name: String,
+}
+
+#[rocket::async_trait]
+impl<'r> rocket::request::FromRequest<'r> for SessionUser {
+    type Error = ();
+    async fn from_request(
+        request: &'r rocket::request::Request<'_>,
+    ) -> rocket::request::Outcome<SessionUser, ()> {
+        let session_id: Option<String> = request
+            .cookies()
+            .get("session")
+            .and_then(|cookie| cookie.value().parse().ok());
+        match session_id {
+            None => {
+                println!("no session id");
+                rocket::request::Outcome::Forward(rocket::http::Status::Unauthorized)
+            }
+            Some(session_sub) => {
+                println!("session id (the auth0subject to lookup): {}", session_sub);
+                // TODO Now get a db connection and lookup to populate the session boy.
+                let user = SessionUser {
+                    user_sub: session_sub,
+                    name: "NotRealName".into(),
+                };
+                rocket::outcome::Outcome::Success(user)
+            }
+        }
+    }
+}
