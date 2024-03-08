@@ -268,32 +268,21 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<SessionUser, ()> {
-        let session_cookie = request.cookies().get("session");
-        let session_id = match session_cookie {
-            None => {
-                info!("no session cookie!");
-                None
-            }
-            Some(s) => {
-                info!("a session cookie!");
-                s.value().parse().ok()
-            }
+        let Some(session_cookie) = request.cookies().get("session") else {
+            info!("no session cookie present");
+            return rocket::request::Outcome::Forward(rocket::http::Status::Unauthorized);
         };
-        // .and_then(|cookie| cookie.value().parse().ok());
-        match session_id {
-            None => {
-                println!("no session id");
-                rocket::request::Outcome::Forward(rocket::http::Status::Unauthorized)
-            }
-            Some(session_sub) => {
-                println!("session id (the auth0subject to lookup): {}", session_sub);
-                // TODO Now get a db connection and lookup to populate the session boy.
-                let user = SessionUser {
-                    user_sub: session_sub,
-                    name: "NotRealName".into(),
-                };
-                rocket::outcome::Outcome::Success(user)
-            }
-        }
+        let Ok(session_id) = session_cookie.value().parse::<String>() else {
+            error!("failed to parse cookie value");
+            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+        };
+
+        println!("session id (the auth0subject to lookup): {}", session_id);
+        // TODO Now get a db connection and lookup to populate the session boy.
+        let user = SessionUser {
+            user_sub: session_id,
+            name: "NotRealName".into(),
+        };
+        rocket::outcome::Outcome::Success(user)
     }
 }
