@@ -268,10 +268,18 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<SessionUser, ()> {
-        let session_id: Option<String> = request
-            .cookies()
-            .get("session")
-            .and_then(|cookie| cookie.value().parse().ok());
+        let session_cookie = request.cookies().get("session");
+        let session_id = match session_cookie {
+            None => {
+                info!("no session cookie!");
+                None
+            }
+            Some(s) => {
+                info!("a session cookie!");
+                s.value().parse().ok()
+            }
+        };
+        // .and_then(|cookie| cookie.value().parse().ok());
         match session_id {
             None => {
                 println!("no session id");
