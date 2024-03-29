@@ -13,7 +13,7 @@ pub fn create_user(new_user: NewUser) -> Result<User, errors::Error> {
         .values(&new_user)
         .returning(User::as_returning())
         .get_result(connection)
-        .expect("Error saving new post");
+        .expect("Error creating new user");
 
     Ok(res)
 }

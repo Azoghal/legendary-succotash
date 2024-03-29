@@ -32,6 +32,18 @@ pub struct User {
     pub name: String,
 }
 
+// TODO separate these out into separate files
+#[derive(Insertable, Selectable, Serialize, Deserialize, Debug, Clone)]
+#[diesel(table_name = crate::schema::sessions)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(crate = "rocket::serde")]
+pub struct Session {
+    pub user_id: i32,
+    pub expires: i32,
+    pub jwt_hash: String,
+    pub jwt: String,
+}
+
 // TODO Think a good approach is to determine some sort of naming convention
 // or *namespacing* for structs that will be returned to the routes
 

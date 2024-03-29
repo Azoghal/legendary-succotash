@@ -11,9 +11,9 @@ use jsonwebtoken::{
 };
 use rand::Rng;
 
-use crate::errors;
-use crate::models::NewUser;
+use crate::models::{NewUser, Session};
 use crate::services::users;
+use crate::{errors, services};
 
 pub fn random_state_string() -> String {
     use rand::{distributions::Alphanumeric, thread_rng};
@@ -82,7 +82,7 @@ pub async fn auth0_callback(
     let resp = match resp_json.json::<TokenResponse>().await {
         Ok(r) => r,
         Err(e) => {
-            error!("failed to parse TokenResponse json");
+            error!("failed to parse TokenResponse json: {e:?}");
             return Err(rocket::http::Status::InternalServerError);
         }
     };
@@ -104,19 +104,26 @@ pub async fn auth0_callback(
 
     info!("the user that logged in: {:?}", user);
 
-    // let hashed_jwt = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
+    let jwt_hash = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
+
+    // TODO whack hashed_jwt:new_session in the db
     let new_session = Session {
         user_id: user.id,
-        expires: claims.exp,
-        raw_jwt: jwt.clone().as_bytes().to_vec(),
+        expires: claims.exp as i32,
+        jwt_hash: jwt_hash.clone(),
+        jwt,
+    };
+
+    // TODO handle
+    let Ok(_) = services::auth0::create_session(new_session) else {
+        return Err(rocket::http::Status::InternalServerError);
     };
 
     // TODO work out how we want to do sessions
     // the cookie value should probably be hashed jwt
     // and we can whack the session into the db in some place
 
-    // for now we'll just whack what we want in plain text. Secure :)
-    let cookie = Cookie::build(("session", user.clone().auth0subject))
+    let cookie = Cookie::build(("session", jwt_hash))
         .same_site(SameSite::Lax)
         .path("/")
         .secure(true)
@@ -248,13 +255,7 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
     }
 }
 
-// we whack a session in a cookie, that we can then grab on the frontend
-struct Session {
-    user_id: i32,
-    expires: usize,
-    raw_jwt: Vec<u8>,
-}
-
+// Session user is the struct used for request guards for authenticated endpoints
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct SessionUser {
@@ -262,6 +263,8 @@ pub struct SessionUser {
     pub name: String,
 }
 
+// To generate a session user for authenticated routes, we lookup the hashed jwt
+// and fetch user details for relevant session from db
 #[rocket::async_trait]
 impl<'r> rocket::request::FromRequest<'r> for SessionUser {
     type Error = ();
@@ -277,7 +280,7 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
             return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
         };
 
-        println!("session id (the auth0subject to lookup): {}", session_id);
+        println!("session id: {}", session_id);
         // TODO Now get a db connection and lookup to populate the session boy.
         let user = SessionUser {
             user_sub: session_id,
