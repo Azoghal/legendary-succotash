@@ -11,8 +11,8 @@ use jsonwebtoken::{
 };
 use rand::Rng;
 
-use crate::models::{NewUser, Session};
-use crate::services::users;
+use crate::models::{NewSession, NewUser, Session};
+use crate::services::{auth0, establish_connection, users};
 use crate::{errors, services};
 
 pub fn random_state_string() -> String {
@@ -107,7 +107,7 @@ pub async fn auth0_callback(
     let jwt_hash = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
 
     // TODO whack hashed_jwt:new_session in the db
-    let new_session = Session {
+    let new_session = NewSession {
         user_id: user.id,
         expires: claims.exp as i32,
         jwt_hash: jwt_hash.clone(),
@@ -281,10 +281,21 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
         };
 
         println!("session id: {}", session_id);
-        // TODO Now get a db connection and lookup to populate the session boy.
+
+        // TODO replace this with a nicer single db query usinga join, once migrated over to using actual SQL
+        let Ok(Some(session)) = auth0::get_session_by_hash(session_id) else {
+            error!("failed fetch session from db");
+            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+        };
+
+        let Ok(session_user) = users::get_user(session.user_id) else {
+            error!("failed fetch session user from db");
+            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+        };
+
         let user = SessionUser {
-            user_sub: session_id,
-            name: "NotRealName".into(),
+            user_sub: session_user.auth0subject,
+            name: session_user.name,
         };
         rocket::outcome::Outcome::Success(user)
     }
