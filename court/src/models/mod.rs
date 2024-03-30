@@ -22,10 +22,11 @@ pub struct NewUser<'a> {
 }
 
 // TODO probably want to add TS
-#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone, TS)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 #[serde(crate = "rocket::serde")]
+#[ts(export)]
 pub struct User {
     pub id: i32,
     pub auth0subject: String,

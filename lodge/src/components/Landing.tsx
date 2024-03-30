@@ -26,7 +26,11 @@ export default function Landing(): React.JSX.Element {
                     <LoginButton />
                     <button
                         className="c-btn"
-                        onClick={newSpotifyExampleClient().session_test}
+                        onClick={() =>
+                            newSpotifyExampleClient()
+                                .session_test()
+                                .then((user) => console.log("the user:", user))
+                        }
                     >
                         check session
                     </button>

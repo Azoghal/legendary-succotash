@@ -20,7 +20,8 @@ pub mod schema;
 #[cfg(test)]
 mod tests;
 
-#[get("/<file..>")]
+// High rank so that e.g. fallthrough from request guards does not hit this
+#[get("/<file..>", rank = 100)]
 async fn files(file: PathBuf) -> Option<NamedFile> {
     let mut path = Path::new(&format!("{}/../lodge/dist", env!("CARGO_MANIFEST_DIR"))).join(file);
     if path.is_dir() {

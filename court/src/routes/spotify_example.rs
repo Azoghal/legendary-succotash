@@ -1,7 +1,12 @@
 use rocket::{serde::json::Json, State};
 
 use super::auth0::SessionUser;
-use crate::{errors, models::Popularity, services::spotify_example, SpotifyApi};
+use crate::{
+    errors,
+    models::{Popularity, User},
+    services::{spotify_example, users::get_user_by_auth0_subject},
+    SpotifyApi,
+};
 
 #[get("/artist-popularity/<id>")]
 pub async fn get_artist_popularity(
@@ -13,16 +18,18 @@ pub async fn get_artist_popularity(
 }
 
 #[get("/user-session-test")]
-pub async fn user_session_test(user: SessionUser) -> Result<(), errors::Error> {
+pub async fn user_session_test(user: SessionUser) -> Result<Json<Option<User>>, errors::Error> {
     info!(
         "If you see this, then the request guard worked! {}",
         user.user_sub
     );
-    Ok(())
+    let user = get_user_by_auth0_subject(&user.user_sub)?;
+    Ok(Json(user))
 }
 
+// TODO this doesn't get hit when the request guard fails...
 #[get("/user-session-test", rank = 2)]
-pub async fn user_session_test_fail() -> Result<(), errors::Error> {
+pub async fn user_session_test_fail() -> Result<Json<Option<User>>, errors::Error> {
     info!("No user in session!");
-    Ok(())
+    Ok(Json(None))
 }

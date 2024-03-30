@@ -1,5 +1,6 @@
 
 import { Popularity } from "../gen/types/Popularity";
+import { User } from "../gen/types/User";
 
 class SpotifyExampleClient {
     async get(artist_id:string): Promise<Popularity> {
@@ -12,13 +13,14 @@ class SpotifyExampleClient {
             .then((json) => json as Popularity);
     }
 
-    async session_test(): Promise<void>{
+    async session_test(): Promise<User>{
         // TODO remove
         const baseUrl = "http://localhost:8000/api/v1"
         const route = "/user-session-test"
         // TODO this actually succeeds even if it's an error code
         return fetch(baseUrl + route, {credentials: "same-origin"})
-            .then(() => console.log("Success")).catch(()=>console.log("err"))
+            .then((response) => response.json())
+            .then((json) => json as User)
     }
 }
 
