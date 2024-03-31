@@ -1,17 +1,25 @@
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useEffect } from "react";
 import { SessionType, useSession } from "../context/session";
-import * as Router from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+// import { Redirect } from "react-router";
 
 export default function Protected(
     props: PropsWithChildren<object>
 ): React.JSX.Element {
     const session = useSession();
+    const navigate = useNavigate();
 
-    if (session.sessionType == SessionType.NO_SESSION) {
-        // user is not authenticated
-        // TODO fix this
-        Router.redirect("/login");
-        return <></>;
-    }
-    return <>{props.children}</>;
+    useEffect(() => {
+        console.log(session);
+        if (session.sessionType == SessionType.NO_SESSION) {
+            // user is not authenticated
+            // TODO fix this.
+            console.log("should redirect to login");
+            navigate("/login");
+        }
+    }, [session, navigate]);
+
+    return (
+        <>{session.sessionType != SessionType.NO_SESSION && props.children}</>
+    );
 }

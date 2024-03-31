@@ -4,8 +4,11 @@ import SuccotashLogo from "../assets/logo.png";
 import ExampleCard from "./gui/ExampleCard";
 import LoginButton from "./gui/LoginButton";
 import { newSpotifyExampleClient } from "../services/spotifyExample";
+import { useSession } from "./context/session";
 
 export default function Landing(): React.JSX.Element {
+    const session = useSession();
+
     return (
         <>
             <header className="c-header">
@@ -26,11 +29,12 @@ export default function Landing(): React.JSX.Element {
                     <LoginButton />
                     <button
                         className="c-btn"
-                        onClick={() =>
+                        onClick={() => {
                             newSpotifyExampleClient()
                                 .session_test()
-                                .then((user) => console.log("the user:", user))
-                        }
+                                .then((user) => console.log("the user:", user));
+                            console.log("the session", session);
+                        }}
                     >
                         check session
                     </button>

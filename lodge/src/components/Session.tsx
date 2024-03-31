@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import * as Router from "react-router";
+import * as Router from "react-router-dom";
 import Landing from "./Landing";
 import TestNotLanding from "./TestNotLanding";
 import { newSpotifyExampleClient } from "../services/spotifyExample";
@@ -10,6 +10,7 @@ import {
     emptySession,
 } from "./context/session";
 import Protected from "./route/Protected";
+import Login from "./Login";
 
 export default function Session(): React.JSX.Element {
     const [session, setSession] = useState<ISession>(emptySession);
@@ -39,7 +40,9 @@ export default function Session(): React.JSX.Element {
         <SessionContext.Provider value={session}>
             <Router.Routes>
                 <Router.Route path="/" Component={Landing} />
+                <Router.Route path="/login" Component={Login} />
                 <Router.Route path="/notlanding" Component={TestNotLanding} />
+                {/* TODO possibly the problem is not using component below */}
                 <Router.Route
                     path="/secret/notlanding"
                     element={<Protected children={<TestNotLanding />} />}
