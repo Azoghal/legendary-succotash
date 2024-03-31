@@ -17,14 +17,18 @@ export default function Session(): React.JSX.Element {
     const loadData = useCallback(() => {
         newSpotifyExampleClient()
             .session_test()
-            .then((user) =>
-                setSession({
-                    sessionType: SessionType.USER,
-                    name: user.name,
-                    user_sub: user.auth0subject,
-                })
-            )
-            .catch((e) => console.error("no user session", e));
+            .then((user) => {
+                if (user) {
+                    setSession({
+                        sessionType: SessionType.USER,
+                        name: user.name,
+                        user_sub: user.auth0subject,
+                    });
+                } else {
+                    console.log("no user session");
+                }
+            })
+            .catch((e) => console.error("failed to fetch user session", e));
     }, []);
 
     useEffect(() => {

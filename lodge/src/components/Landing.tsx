@@ -34,6 +34,12 @@ export default function Landing(): React.JSX.Element {
                     >
                         check session
                     </button>
+                    <a className="c-btn" href="/notlanding">
+                        not landing
+                    </a>
+                    <a className="c-btn" href="/secret/notlanding">
+                        secret
+                    </a>
                 </div>
             </header>
             <main className="c-page">
