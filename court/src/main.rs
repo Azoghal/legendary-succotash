@@ -1,4 +1,4 @@
-use rocket::fs::NamedFile;
+use rocket::fs::{relative, FileServer, NamedFile};
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::{tokio, State};
 
@@ -20,16 +20,32 @@ pub mod schema;
 #[cfg(test)]
 mod tests;
 
-// High rank so that e.g. fallthrough from request guards does not hit this
-#[get("/<file..>", rank = 100)]
-async fn files(file: PathBuf) -> Option<NamedFile> {
-    let mut path = Path::new(&format!("{}/../lodge/dist", env!("CARGO_MANIFEST_DIR"))).join(file);
-    if path.is_dir() {
-        path.push("index.html");
-    }
+// fallback from /<file..> - if a static file is not found, then serve the template for frontend
+#[get("/<_..>", rank = 101)]
+async fn fallback() -> Option<NamedFile> {
+    // let manifest_dir = env!("CARGO_MANIFEST_DIR");
+    // let path_segment = format!("{}/../lodge/dist/index.html", manifest_dir);
+    // let path = Path::new(&path_segment);
+    // info!("redirecting to frontend for route {:?}", file);
 
-    NamedFile::open(path).await.ok()
+    NamedFile::open(Path::new(&format!(
+        "{}/../lodge/dist/index.html",
+        env!("CARGO_MANIFEST_DIR")
+    )))
+    .await
+    .ok()
 }
+
+// High rank so that e.g. fallthrough from request guards does not hit this
+// #[get("/<file..>", rank = 100)]
+// async fn files(file: PathBuf) -> Option<NamedFile> {
+//     let mut path = Path::new(&format!("{}/../lodge/dist", env!("CARGO_MANIFEST_DIR"))).join(file);
+//     if path.is_dir() {
+//         path.push("index.html");
+//     }
+
+//     NamedFile::open(path).await.ok()
+// }
 
 struct SpotifyApi {
     client: ClientCredsSpotify,
@@ -71,9 +87,13 @@ fn rocket() -> _ {
             ],
         )
         .mount(
+            "/assets",
+            FileServer::from(relative!("../lodge/dist/assets")).rank(1),
+        )
+        .mount(
             "/",
             routes![
-                files,
+                fallback,
                 routes::auth0::auth0_redirect,
                 routes::auth0::auth0_callback,
                 routes::auth0::logged_in

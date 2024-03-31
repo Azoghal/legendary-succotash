@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { SessionType, useSession } from "../context/session";
-import { Navigate } from "react-router-dom";
+import * as Router from "react-router-dom";
 
 export default function Protected(
     props: PropsWithChildren<object>
@@ -9,7 +9,9 @@ export default function Protected(
 
     if (session.sessionType == SessionType.NO_SESSION) {
         // user is not authenticated
-        return <Navigate to="/login" />;
+        // TODO fix this
+        Router.redirect("/login");
+        return <></>;
     }
     return <>{props.children}</>;
 }
