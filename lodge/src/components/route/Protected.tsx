@@ -1,7 +1,6 @@
 import React, { PropsWithChildren, useEffect } from "react";
 import { SessionType, useSession } from "../context/session";
 import { useNavigate } from "react-router-dom";
-// import { Redirect } from "react-router";
 
 export default function Protected(
     props: PropsWithChildren<object>
@@ -13,8 +12,7 @@ export default function Protected(
         console.log(session);
         if (session.sessionType == SessionType.NO_SESSION) {
             // user is not authenticated
-            // TODO fix this.
-            console.log("should redirect to login");
+            // TODO fix this. We want to redirect outside of react router, in order to hit the backend login endpoint.
             navigate("/login");
         }
     }, [session, navigate]);

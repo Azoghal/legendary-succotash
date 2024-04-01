@@ -28,7 +28,6 @@ pub fn get_user(user_id: i32) -> Result<User, errors::Error> {
     Ok(result)
 }
 
-// TODO currently this will error if there are no matches (i think). make nicer when we move to sql queries
 pub fn get_user_by_auth0_subject(auth0_sub: &str) -> Result<Option<User>, errors::Error> {
     use crate::schema::users::dsl::*;
 

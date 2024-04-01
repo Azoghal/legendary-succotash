@@ -13,7 +13,7 @@ import Protected from "./route/Protected";
 import Login from "./Login";
 
 export default function Session(): React.JSX.Element {
-    // TODO do we want to local storage this?
+    // Consider if we can use session or local storage for the session
     const [session, setSession] = useState<ISession>();
 
     const loadData = useCallback(() => {
@@ -38,7 +38,6 @@ export default function Session(): React.JSX.Element {
         loadData();
     }, [loadData]);
 
-    console.log("session in session: ", session);
 
     if (!session) {
         return <></>;

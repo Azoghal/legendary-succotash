@@ -4,7 +4,7 @@ import { User } from "../gen/types/User";
 
 class SpotifyExampleClient {
     async get(artist_id:string): Promise<Popularity> {
-        // TODO get base url from env or context
+        // TODO get base url from env or context. For localhost, things go weird if we use a mix of ip and localhost.
         const baseUrl = "http://localhost:8000/api/v1"
         const route = "/artist-popularity"
         const idStr = "/" + artist_id 

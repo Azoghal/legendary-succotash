@@ -18,7 +18,7 @@ use crate::{errors, services};
 pub fn random_state_string() -> String {
     use rand::{distributions::Alphanumeric, thread_rng};
     let mut rng = thread_rng();
-    let chars: String = (0..7).map(|_| rng.sample(Alphanumeric) as char).collect();
+    let chars: String = (0..16).map(|_| rng.sample(Alphanumeric) as char).collect();
     chars
 }
 
@@ -27,7 +27,6 @@ pub fn auth0_redirect(
     cookies: &CookieJar,
     settings: &State<Auth0>,
 ) -> Result<response::Redirect, Status> {
-    // TODO make an actual random string
     let state = random_state_string();
     let my_cookie = Cookie::build(("state", state.clone())).same_site(SameSite::Lax); // might be able to get rid of samesite lax if hosted properly
     cookies.add(my_cookie);
@@ -47,11 +46,9 @@ pub async fn auth0_callback(
     code: String,
     state: String,
     cookies: &CookieJar<'_>,
-    // db: State<DB>,
     settings: &State<Auth0>,
 ) -> Result<response::Redirect, Status> {
     let cook = cookies.get_pending("state");
-    info!("{:?}", cook);
     if let Some(cookie) = cook {
         if state != cookie.value() {
             return Err(rocket::http::Status::Forbidden);
@@ -77,7 +74,6 @@ pub async fn auth0_callback(
         return Err(rocket::http::Status::BadRequest);
     };
 
-    info!("resp_json {:?}", resp_json);
 
     let resp = match resp_json.json::<TokenResponse>().await {
         Ok(r) => r,
@@ -102,11 +98,9 @@ pub async fn auth0_callback(
         return Err(rocket::http::Status::InternalServerError);
     };
 
-    info!("the user that logged in: {:?}", user);
 
     let jwt_hash = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
 
-    // TODO whack hashed_jwt:new_session in the db
     let new_session = NewSession {
         user_id: user.id,
         expires: claims.exp as i32,
@@ -114,14 +108,10 @@ pub async fn auth0_callback(
         jwt,
     };
 
-    // TODO handle
     let Ok(_) = services::auth0::create_session(new_session) else {
         return Err(rocket::http::Status::InternalServerError);
     };
 
-    // TODO work out how we want to do sessions
-    // the cookie value should probably be hashed jwt
-    // and we can whack the session into the db in some place
 
     let cookie = Cookie::build(("session", jwt_hash))
         .same_site(SameSite::Lax)
@@ -228,7 +218,6 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
 
     let jwks = get_jwks(settings).await?;
 
-    info!("the jwks: {:?}", jwks);
 
     if let Some(j) = jwks.find(&kid) {
         match &j.algorithm {

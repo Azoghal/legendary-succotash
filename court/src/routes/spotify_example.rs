@@ -27,7 +27,6 @@ pub async fn user_session_test(user: SessionUser) -> Result<Json<Option<User>>, 
     Ok(Json(user))
 }
 
-// TODO this doesn't get hit when the request guard fails...
 #[get("/user-session-test", rank = 2)]
 pub async fn user_session_test_fail() -> Result<Json<Option<User>>, errors::Error> {
     info!("No user in session!");

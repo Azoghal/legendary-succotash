@@ -21,7 +21,6 @@ pub struct NewUser<'a> {
     pub auth0subject: &'a str,
 }
 
-// TODO probably want to add TS
 #[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone, TS)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
