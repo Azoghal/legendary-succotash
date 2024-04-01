@@ -1,5 +1,3 @@
-use std::env::VarError; // TODO remove
-
 use rocket::http::{Cookie, CookieJar, SameSite, Status};
 use rocket::response;
 use rocket::serde::{Deserialize, Serialize};
@@ -11,8 +9,8 @@ use jsonwebtoken::{
 };
 use rand::Rng;
 
-use crate::models::{NewSession, NewUser, Session};
-use crate::services::{auth0, establish_connection, users};
+use crate::models::{NewSession, NewUser};
+use crate::services::{auth0, users};
 use crate::{errors, services};
 
 pub fn random_state_string() -> String {
@@ -54,7 +52,7 @@ pub async fn auth0_callback(
             return Err(rocket::http::Status::Forbidden);
         }
     } else {
-        println!("cookie state bad");
+        error!("state cookie bad");
         return Err(rocket::http::Status::BadRequest);
     }
     cookies.remove("state");
@@ -73,7 +71,6 @@ pub async fn auth0_callback(
         error!("failed to send token request");
         return Err(rocket::http::Status::BadRequest);
     };
-
 
     let resp = match resp_json.json::<TokenResponse>().await {
         Ok(r) => r,
@@ -95,9 +92,9 @@ pub async fn auth0_callback(
     };
 
     let Ok(user) = users::get_or_create_user(user) else {
+        error!("failed to get or create user");
         return Err(rocket::http::Status::InternalServerError);
     };
-
 
     let jwt_hash = hex_digest(crypto_hash::Algorithm::SHA256, jwt.clone().as_bytes());
 
@@ -109,9 +106,9 @@ pub async fn auth0_callback(
     };
 
     let Ok(_) = services::auth0::create_session(new_session) else {
+        error!("failed to create session");
         return Err(rocket::http::Status::InternalServerError);
     };
-
 
     let cookie = Cookie::build(("session", jwt_hash))
         .same_site(SameSite::Lax)
@@ -137,8 +134,7 @@ pub struct Auth0 {
 }
 
 impl Auth0 {
-    // TODO replace VarError with real error
-    pub fn from_env() -> Result<Auth0, VarError> {
+    pub fn from_env() -> Result<Auth0, errors::Error> {
         let app_settings = Auth0 {
             client_id: std::env::var("AUTH0_CLIENT_ID")?,
             client_secret: std::env::var("AUTH0_CLIENT_SECRET")?,
@@ -217,7 +213,6 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
     };
 
     let jwks = get_jwks(settings).await?;
-
 
     if let Some(j) = jwks.find(&kid) {
         match &j.algorithm {

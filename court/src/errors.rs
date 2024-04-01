@@ -45,6 +45,12 @@ pub enum Error {
         source: reqwest::Error,
     },
 
+    #[error("std env var error {source:?}")]
+    EnvVarError {
+        #[from]
+        source: std::env::VarError,
+    },
+
     #[error("currently no sensible succotash error for: `{0}`")]
     Placeholder(String),
 }

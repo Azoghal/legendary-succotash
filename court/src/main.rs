@@ -20,14 +20,9 @@ pub mod schema;
 #[cfg(test)]
 mod tests;
 
-// fallback from /<file..> - if a static file is not found, then serve the template for frontend
+// fallback to serve index.html. This is hit for anything not in /assets and not a different rust route
 #[get("/<_..>", rank = 101)]
 async fn fallback() -> Option<NamedFile> {
-    // let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    // let path_segment = format!("{}/../lodge/dist/index.html", manifest_dir);
-    // let path = Path::new(&path_segment);
-    // info!("redirecting to frontend for route {:?}", file);
-
     NamedFile::open(Path::new(&format!(
         "{}/../lodge/dist/index.html",
         env!("CARGO_MANIFEST_DIR")
@@ -35,17 +30,6 @@ async fn fallback() -> Option<NamedFile> {
     .await
     .ok()
 }
-
-// High rank so that e.g. fallthrough from request guards does not hit this
-// #[get("/<file..>", rank = 100)]
-// async fn files(file: PathBuf) -> Option<NamedFile> {
-//     let mut path = Path::new(&format!("{}/../lodge/dist", env!("CARGO_MANIFEST_DIR"))).join(file);
-//     if path.is_dir() {
-//         path.push("index.html");
-//     }
-
-//     NamedFile::open(path).await.ok()
-// }
 
 struct SpotifyApi {
     client: ClientCredsSpotify,
@@ -88,7 +72,7 @@ fn rocket() -> _ {
         )
         .mount(
             "/assets",
-            FileServer::from(relative!("../lodge/dist/assets")).rank(1),
+            FileServer::from(relative!("../lodge/dist/assets")).rank(1), // this replaces /<file..> route
         )
         .mount(
             "/",
