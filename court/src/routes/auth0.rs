@@ -190,11 +190,12 @@ async fn get_jwks(settings: &State<Auth0>) -> Result<jwk::JwkSet, errors::Error>
     );
     let client = reqwest::Client::new();
 
-    let Ok(resp_json) = client.get(endpoint).send().await else {
-        error!("failed to send jwks request");
-        return Err(errors::Error::Placeholder(
-            "failed to send jks request".into(),
-        ));
+    let resp_json = match client.get(endpoint).send().await {
+        Ok(resp_json) => resp_json,
+        Err(e) => {
+            error!("failed to send jwks request {e}");
+            return Err(e.into());
+        }
     };
 
     let jwks: jwk::JwkSet = resp_json.json::<jwk::JwkSet>().await?;
@@ -209,7 +210,7 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
             info!("kid from header: {k}");
             k
         }
-        None => return Err(errors::Error::Placeholder("no kid in jwt".into())),
+        None => return Err(errors::Error::NotFound("no kid in jwt".into())),
     };
 
     let jwks = get_jwks(settings).await?;
@@ -233,7 +234,7 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
             _ => unreachable!("this should be a RSA"),
         }
     } else {
-        Err(errors::Error::Placeholder(
+        Err(errors::Error::NotFound(
             "No matching JWK found for the given kid".into(),
         ))
     }

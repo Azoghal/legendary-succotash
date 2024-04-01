@@ -51,8 +51,8 @@ pub enum Error {
         source: std::env::VarError,
     },
 
-    #[error("currently no sensible succotash error for: `{0}`")]
-    Placeholder(String),
+    #[error("not found: {0}")]
+    NotFound(String),
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
