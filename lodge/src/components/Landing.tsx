@@ -3,8 +3,8 @@ import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
 import ExampleCard from "./gui/ExampleCard";
 import LoginButton from "./gui/LoginButton";
-import { newSpotifyExampleClient } from "../services/spotifyExample";
 import { useSession } from "./context/session";
+import { newSessionClient } from "../services/session";
 
 export default function Landing(): React.JSX.Element {
     const session = useSession();
@@ -30,8 +30,8 @@ export default function Landing(): React.JSX.Element {
                     <button
                         className="c-btn"
                         onClick={() => {
-                            newSpotifyExampleClient()
-                                .session_test()
+                            newSessionClient()
+                                .getUser()
                                 .then((user) => console.log("the user:", user));
                             console.log("the session", session);
                         }}

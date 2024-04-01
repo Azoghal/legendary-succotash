@@ -17,6 +17,7 @@ pub async fn get_artist_popularity(
     Ok(Json(res))
 }
 
+// TODO move these to own set of routes
 #[get("/user-session-test")]
 pub async fn user_session_test(user: SessionUser) -> Result<Json<Option<User>>, errors::Error> {
     info!(
@@ -24,13 +25,11 @@ pub async fn user_session_test(user: SessionUser) -> Result<Json<Option<User>>, 
         user.user_sub
     );
     let user = get_user_by_auth0_subject(&user.user_sub)?;
-    Err(errors::Error::NotFound("This is a fake error".into()))
-    //Ok(Json(user))
+    Ok(Json(user))
 }
 
 #[get("/user-session-test", rank = 2)]
 pub async fn user_session_test_fail() -> Result<Json<Option<User>>, errors::Error> {
     info!("No user in session!");
-    Err(errors::Error::NotFound("This is a fake error".into()))
-    // Ok(Json(None))
+    Ok(Json(None))
 }
