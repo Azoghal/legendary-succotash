@@ -15,7 +15,7 @@ export default function ExampleCard(props: IExampleCardProps): JSX.Element {
         );
 
         newSpotifyExampleClient()
-            .get(artist)
+            .getArtistPopularity(artist)
             .then((resp) => {
                 setPopularity(resp.popularity);
             })

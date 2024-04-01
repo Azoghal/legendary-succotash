@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import * as Router from "react-router-dom";
 import Landing from "./Landing";
 import TestNotLanding from "./TestNotLanding";
-import { newSpotifyExampleClient } from "../services/spotifyExample";
 import {
     ISession,
     SessionContext,
@@ -11,14 +10,15 @@ import {
 } from "./context/session";
 import Protected from "./route/Protected";
 import Login from "./Login";
+import { newSessionClient } from "../services/session";
 
 export default function Session(): React.JSX.Element {
     // Consider if we can use session or local storage for the session
     const [session, setSession] = useState<ISession>();
 
     const loadData = useCallback(() => {
-        newSpotifyExampleClient()
-            .session_test()
+        newSessionClient()
+            .getUser()
             .then((user) => {
                 if (user) {
                     setSession({
@@ -37,7 +37,6 @@ export default function Session(): React.JSX.Element {
     useEffect(() => {
         loadData();
     }, [loadData]);
-
 
     if (!session) {
         return <></>;

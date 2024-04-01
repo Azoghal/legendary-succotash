@@ -231,7 +231,9 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
                 };
                 Ok(token_claims.claims)
             }
-            _ => unreachable!("this should be a RSA"),
+            _ => Err(errors::Error::UnexpectedAlg(
+                "jwks algorithm not RSA".into(),
+            )),
         }
     } else {
         Err(errors::Error::NotFound(

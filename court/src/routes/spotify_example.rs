@@ -24,11 +24,13 @@ pub async fn user_session_test(user: SessionUser) -> Result<Json<Option<User>>, 
         user.user_sub
     );
     let user = get_user_by_auth0_subject(&user.user_sub)?;
-    Ok(Json(user))
+    Err(errors::Error::NotFound("This is a fake error".into()))
+    //Ok(Json(user))
 }
 
 #[get("/user-session-test", rank = 2)]
 pub async fn user_session_test_fail() -> Result<Json<Option<User>>, errors::Error> {
     info!("No user in session!");
-    Ok(Json(None))
+    Err(errors::Error::NotFound("This is a fake error".into()))
+    // Ok(Json(None))
 }

@@ -1,14 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    recipes (id) {
-        id -> Int4,
-        title -> Text,
-        instructions -> Text,
-    }
-}
-
-diesel::table! {
     sessions (id) {
         id -> Int4,
         user_id -> Int4,
@@ -28,8 +20,4 @@ diesel::table! {
 
 diesel::joinable!(sessions -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    recipes,
-    sessions,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(sessions, users,);

@@ -64,7 +64,6 @@ fn rocket() -> _ {
         .mount(
             "/api/v1",
             routes![
-                routes::succotash::get_recipes,
                 routes::spotify_example::get_artist_popularity,
                 routes::spotify_example::user_session_test,
                 routes::spotify_example::user_session_test_fail

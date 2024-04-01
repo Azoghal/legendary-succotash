@@ -53,6 +53,9 @@ pub enum Error {
 
     #[error("not found: {0}")]
     NotFound(String),
+
+    #[error("unexpected encryption algorithm")]
+    UnexpectedAlg(String),
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
