@@ -13,7 +13,7 @@ import Protected from "./route/Protected";
 import Login from "./Login";
 
 export default function Session(): React.JSX.Element {
-    const [session, setSession] = useState<ISession>(emptySession);
+    const [session, setSession] = useState<ISession>();
 
     const loadData = useCallback(() => {
         newSpotifyExampleClient()
@@ -26,6 +26,7 @@ export default function Session(): React.JSX.Element {
                         user_sub: user.auth0subject,
                     });
                 } else {
+                    setSession(emptySession);
                     console.log("no user session");
                 }
             })
@@ -36,13 +37,18 @@ export default function Session(): React.JSX.Element {
         loadData();
     }, [loadData]);
 
+    console.log("session in session: ", session);
+
+    if (!session) {
+        return <></>;
+    }
+
     return (
         <SessionContext.Provider value={session}>
             <Router.Routes>
                 <Router.Route path="/" Component={Landing} />
                 <Router.Route path="/login" Component={Login} />
                 <Router.Route path="/notlanding" Component={TestNotLanding} />
-                {/* TODO possibly the problem is not using component below */}
                 <Router.Route
                     path="/secret/notlanding"
                     element={<Protected children={<TestNotLanding />} />}
