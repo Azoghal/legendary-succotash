@@ -13,6 +13,7 @@ import Protected from "./route/Protected";
 import Login from "./Login";
 
 export default function Session(): React.JSX.Element {
+    // TODO do we want to local storage this?
     const [session, setSession] = useState<ISession>();
 
     const loadData = useCallback(() => {
