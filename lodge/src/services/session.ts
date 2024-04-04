@@ -3,7 +3,7 @@ import { User } from "../gen/types/User";
 class SessionClient {
     async getUser(): Promise<User>{
         // TODO remove
-        const baseUrl = "http://localhost:8000/api/v1"
+        const baseUrl = process.env.REACT_APP_BASE_API_URL
         const route = "/session_user"
 
         return new Promise((resolve, reject)=>{

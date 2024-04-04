@@ -13,6 +13,7 @@ export default function Protected(
         if (session.sessionType == SessionType.NO_SESSION) {
             // user is not authenticated
             // TODO fix this. We want to redirect outside of react router, in order to hit the backend login endpoint.
+            // For now this is ok, it redirects to a react page with a single anchor that does take us to the backend
             navigate("/login");
         }
     }, [session, navigate]);

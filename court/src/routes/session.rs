@@ -4,7 +4,6 @@ use crate::{errors, models::User, services::users::get_user_by_auth0_subject};
 
 use super::auth0::SessionUser;
 
-// TODO move these to own set of routes
 #[get("/session_user")]
 pub async fn session_user(user: SessionUser) -> Result<Json<Option<User>>, errors::Error> {
     info!(

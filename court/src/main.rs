@@ -16,6 +16,7 @@ pub mod schema;
 #[cfg(test)]
 mod tests;
 
+// TODO consider whacking the whole frontend under some route, because at the moment we 200ok and serve the landing page for even completely wrong requests
 // fallback to serve index.html. This is hit for anything not in /assets and not a different rust route
 #[get("/<_..>", rank = 101)]
 async fn fallback() -> Option<NamedFile> {

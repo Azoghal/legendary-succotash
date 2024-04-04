@@ -79,12 +79,14 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
                     // TODO extend these cases
                     match code {
                         400 => Status::BadRequest.respond_to(req),
+                        404 => Status::NotFound.respond_to(req),
                         _ => Status::InternalServerError.respond_to(req),
                     }
                 }
             }
         }
 
+        // Here we can map internal errors to the relevant status codes.
         match self {
             Error::SpotifyId { source } => {
                 error!("{source:?}");
