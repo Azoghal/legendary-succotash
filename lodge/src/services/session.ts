@@ -7,7 +7,7 @@ class SessionClient {
         const route = "/session_user"
 
         return new Promise((resolve, reject)=>{
-            fetch(baseUrl + route, {credentials: "same-origin"}) // TODO probably want to add application/json
+            fetch(baseUrl + route, {credentials: "same-origin", headers: {"Content-Type":"application/json"}})
             .then((response) => { 
                 if (response.ok) {
                     resolve(response.json().then((json)=>json as User))
