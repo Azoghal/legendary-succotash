@@ -12,7 +12,8 @@ pub async fn session_user(user: SessionUser) -> Result<Json<Option<User>>, error
         user.user_sub
     );
     let user = get_user_by_auth0_subject(&user.user_sub)?;
-    Ok(Json(user))
+    // Ok(Json(user))
+    Err(errors::Error::NotFound("Hurm!".into()))
 }
 
 #[get("/session_user", rank = 2)]

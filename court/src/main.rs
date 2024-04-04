@@ -1,11 +1,7 @@
+use dotenvy::dotenv;
 use rocket::fs::{relative, FileServer, NamedFile};
-use rocket::http::{Cookie, CookieJar, Status};
-use rocket::{tokio, State};
-
-use rspotify::{ClientCredsSpotify, Credentials};
-
-use std::env::VarError;
-use std::path::{Path, PathBuf};
+use services::spotify;
+use std::path::Path;
 
 #[macro_use]
 extern crate rocket;
@@ -31,36 +27,17 @@ async fn fallback() -> Option<NamedFile> {
     .ok()
 }
 
-struct SpotifyApi {
-    client: ClientCredsSpotify,
-}
-
-impl SpotifyApi {
-    // use macro to make blocking so we can just call it easily on server startup.
-    #[rocket::tokio::main]
-    async fn new() -> Self {
-        let creds = Credentials::from_env().expect("failed to get credentials from env");
-        let client = ClientCredsSpotify::new(creds);
-
-        client
-            .request_token()
-            .await
-            .expect("failed to get spotify token");
-
-        SpotifyApi { client }
-    }
-}
-
 #[launch]
 fn rocket() -> _ {
+    dotenv().ok();
     // TODO come back and fix the cors rules
     let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
-    let spotify = SpotifyApi::new();
+    let spotify = spotify::SpotifyApi::new();
     let auth0 = routes::auth0::Auth0::from_env().unwrap();
 
     rocket::build()
         .manage(spotify)
-        .manage(auth0) // TODO we actually need to not do this because secrets
+        .manage(auth0) // I think for now, that this is fine...
         .mount(
             "/api/v1",
             routes![

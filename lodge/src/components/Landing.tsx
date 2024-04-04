@@ -32,7 +32,8 @@ export default function Landing(): React.JSX.Element {
                         onClick={() => {
                             newSessionClient()
                                 .getUser()
-                                .then((user) => console.log("the user:", user));
+                                .then((user) => console.log("the user:", user))
+                                .catch((e) => console.error("error: ", e));
                             console.log("the session", session);
                         }}
                     >

@@ -5,9 +5,16 @@ class SessionClient {
         // TODO remove
         const baseUrl = "http://localhost:8000/api/v1"
         const route = "/session_user"
-        const json_resp = fetch(baseUrl + route, {credentials: "same-origin"})
-            .then((response) => response.ok? response.json() : {})
-        return json_resp.then((json)=>json as User)
+
+        return new Promise((resolve, reject)=>{
+            fetch(baseUrl + route, {credentials: "same-origin"}) // TODO probably want to add application/json
+            .then((response) => { 
+                if (response.ok) {
+                    resolve(response.json().then((json)=>json as User))
+                }
+                reject([baseUrl+route, response.statusText].join(" "))
+            })
+        })
     }
 }
 

@@ -8,6 +8,7 @@ use jsonwebtoken::{
     decode, decode_header, jwk, jwk::AlgorithmParameters, Algorithm, DecodingKey, Validation,
 };
 use rand::Rng;
+use std::env;
 
 use crate::models::{NewSession, NewUser};
 use crate::services::{auth0, users};
@@ -136,10 +137,10 @@ pub struct Auth0 {
 impl Auth0 {
     pub fn from_env() -> Result<Auth0, errors::Error> {
         let app_settings = Auth0 {
-            client_id: std::env::var("AUTH0_CLIENT_ID")?,
-            client_secret: std::env::var("AUTH0_CLIENT_SECRET")?,
-            redirect_uri: std::env::var("AUTH0_REDIRECT_URI")?,
-            auth0_tenant_domain: std::env::var("AUTH0_DOMAIN")?,
+            client_id: env::var("AUTH0_CLIENT_ID")?,
+            client_secret: env::var("AUTH0_CLIENT_SECRET")?,
+            redirect_uri: env::var("AUTH0_REDIRECT_URI")?,
+            auth0_tenant_domain: env::var("AUTH0_DOMAIN")?,
         };
         Ok(app_settings)
     }

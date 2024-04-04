@@ -31,7 +31,10 @@ export default function Session(): React.JSX.Element {
                     console.log("no user session");
                 }
             })
-            .catch((e) => console.error("failed to fetch user session", e));
+            .catch((e) => {
+                console.error("failed to fetch user session", e);
+                setSession(emptySession);
+            });
     }, []);
 
     useEffect(() => {
