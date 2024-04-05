@@ -1,8 +1,7 @@
-use rocket::fs::NamedFile;
-use rocket::tokio;
-use rspotify::{ClientCredsSpotify, Credentials};
-
-use std::path::{Path, PathBuf};
+use dotenvy::dotenv;
+use rocket::fs::{relative, FileServer, NamedFile};
+use services::spotify;
+use std::path::Path;
 
 #[macro_use]
 extern crate rocket;
@@ -17,50 +16,48 @@ pub mod schema;
 #[cfg(test)]
 mod tests;
 
-#[get("/<file..>")]
-async fn files(file: PathBuf) -> Option<NamedFile> {
-    let mut path = Path::new(&format!("{}/../lodge/dist", env!("CARGO_MANIFEST_DIR"))).join(file);
-    if path.is_dir() {
-        path.push("index.html");
-    }
-
-    NamedFile::open(path).await.ok()
-}
-
-struct SpotifyApi {
-    client: ClientCredsSpotify,
-}
-
-impl SpotifyApi {
-    // use macro to make blocking so we can just call it easily on server startup.
-    #[rocket::tokio::main]
-    async fn new() -> Self {
-        let creds = Credentials::from_env().expect("failed to get credentials from env");
-        let client = ClientCredsSpotify::new(creds);
-
-        client
-            .request_token()
-            .await
-            .expect("failed to get spotify token");
-
-        SpotifyApi { client }
-    }
+// TODO consider whacking the whole frontend under some route, because at the moment we 200ok and serve the landing page for even completely wrong requests
+// fallback to serve index.html. This is hit for anything not in /assets and not a different rust route
+#[get("/<_..>", rank = 101)]
+async fn fallback() -> Option<NamedFile> {
+    NamedFile::open(Path::new(&format!(
+        "{}/../lodge/dist/index.html",
+        env!("CARGO_MANIFEST_DIR")
+    )))
+    .await
+    .ok()
 }
 
 #[launch]
 fn rocket() -> _ {
+    dotenv().ok();
     // TODO come back and fix the cors rules
     let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
-    let spotify = SpotifyApi::new();
+    let spotify = spotify::SpotifyApi::new();
+    let auth0 = routes::auth0::Auth0::from_env().unwrap();
 
     rocket::build()
         .manage(spotify)
-        .mount("/", rocket::routes![files])
+        .manage(auth0) // I think for now, that this is fine...
         .mount(
             "/api/v1",
             routes![
-                routes::succotash::get_recipes,
-                routes::spotify_example::get_artist_popularity
+                routes::spotify_example::get_artist_popularity,
+                routes::session::session_user,
+                routes::session::session_user_fail
+            ],
+        )
+        .mount(
+            "/assets",
+            FileServer::from(relative!("../lodge/dist/assets")).rank(1), // this replaces /<file..> route
+        )
+        .mount(
+            "/",
+            routes![
+                fallback,
+                routes::auth0::auth0_redirect,
+                routes::auth0::auth0_callback,
+                routes::auth0::logged_in
             ],
         )
         .attach(cors)

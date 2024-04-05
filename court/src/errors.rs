@@ -26,6 +26,36 @@ pub enum Error {
         #[from]
         source: diesel::result::Error,
     },
+
+    #[error("jsonwebtoken error {source:?}")]
+    JWTError {
+        #[from]
+        source: jsonwebtoken::errors::Error,
+    },
+
+    #[error("serializing/deserializing error {source:?}")]
+    SerdeError {
+        #[from]
+        source: rocket::serde::json::serde_json::Error,
+    },
+
+    #[error("reqwest error {source:?}")]
+    ReqwestError {
+        #[from]
+        source: reqwest::Error,
+    },
+
+    #[error("std env var error {source:?}")]
+    EnvVarError {
+        #[from]
+        source: std::env::VarError,
+    },
+
+    #[error("not found: {0}")]
+    NotFound(String),
+
+    #[error("unexpected encryption algorithm")]
+    UnexpectedAlg(String),
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
@@ -49,12 +79,14 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
                     // TODO extend these cases
                     match code {
                         400 => Status::BadRequest.respond_to(req),
+                        404 => Status::NotFound.respond_to(req),
                         _ => Status::InternalServerError.respond_to(req),
                     }
                 }
             }
         }
 
+        // Here we can map internal errors to the relevant status codes.
         match self {
             Error::SpotifyId { source } => {
                 error!("{source:?}");

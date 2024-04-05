@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-drop table recipes;
+drop table sessions;

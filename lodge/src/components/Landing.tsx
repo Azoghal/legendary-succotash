@@ -1,11 +1,14 @@
 import React from "react";
 import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
-import Counter from "./gui/Counter";
-import RecipeButton from "./gui/RecipeButton";
 import ExampleCard from "./gui/ExampleCard";
+import LoginButton from "./gui/LoginButton";
+import { useSession } from "./context/session";
+import { newSessionClient } from "../services/session";
 
 export default function Landing(): React.JSX.Element {
+    const session = useSession();
+
     return (
         <>
             <header className="c-header">
@@ -23,8 +26,25 @@ export default function Landing(): React.JSX.Element {
                     <h1>{t("title.succotash")}</h1>
                 </div>
                 <div className="c-header-right">
-                    <Counter val={0} />
-                    <RecipeButton />
+                    <LoginButton />
+                    <button
+                        className="c-btn"
+                        onClick={() => {
+                            newSessionClient()
+                                .getUser()
+                                .then((user) => console.log("the user:", user))
+                                .catch((e) => console.error("error: ", e));
+                            console.log("the session", session);
+                        }}
+                    >
+                        check session
+                    </button>
+                    <a className="c-btn" href="/notlanding">
+                        not landing
+                    </a>
+                    <a className="c-btn" href="/secret/notlanding">
+                        secret
+                    </a>
                 </div>
             </header>
             <main className="c-page">

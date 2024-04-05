@@ -1,16 +1,7 @@
-import Landing from "./components/Landing";
-import * as Router from "react-router";
-import TestNotLanding from "./components/TestNotLanding";
+import Session from "./components/Session";
 
 function App() {
-    return (
-        <>
-            <Router.Routes>
-                <Router.Route path="/" Component={Landing} />
-                <Router.Route path="/notlanding" Component={TestNotLanding} />
-            </Router.Routes>
-        </>
-    );
+    return <Session />;
 }
 
 export default App;
