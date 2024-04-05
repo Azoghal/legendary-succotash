@@ -1,6 +1,6 @@
 use rocket::serde::json::Json;
 
-use crate::{errors, models::User, services::users::get_user_by_auth0_subject};
+use crate::{errors, models::users::User, services::users::get_user_by_auth0_subject};
 
 use super::auth0::SessionUser;
 

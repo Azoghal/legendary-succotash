@@ -5,7 +5,7 @@ use diesel::{
 
 use crate::{
     errors,
-    models::{NewSession, Session},
+    models::session::{NewSession, Session},
     services::establish_connection,
 };
 

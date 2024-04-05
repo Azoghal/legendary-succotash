@@ -1,6 +1,6 @@
 use rocket::{serde::json::Json, State};
 
-use crate::{errors, models::Popularity, services::spotify_example, spotify::SpotifyApi};
+use crate::{errors, models::spotify::Popularity, services::spotify_example, spotify::SpotifyApi};
 
 #[get("/artist-popularity/<id>")]
 pub async fn get_artist_popularity(

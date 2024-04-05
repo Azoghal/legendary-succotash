@@ -2,7 +2,7 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 
 use super::establish_connection;
 use crate::errors;
-use crate::models::{NewUser, User};
+use crate::models::users::{NewUser, User};
 
 pub fn create_user(new_user: NewUser) -> Result<User, errors::Error> {
     use crate::schema::users::dsl::*;

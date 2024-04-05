@@ -1,4 +1,4 @@
-use crate::{errors, models::Popularity, spotify::SpotifyApi};
+use crate::{errors, models::spotify::Popularity, spotify::SpotifyApi};
 
 use rspotify::{clients::BaseClient, model::ArtistId};
 

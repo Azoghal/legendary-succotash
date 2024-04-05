@@ -10,7 +10,7 @@ use jsonwebtoken::{
 use rand::Rng;
 use std::env;
 
-use crate::models::{NewSession, NewUser};
+use crate::models::{session::NewSession, users::NewUser};
 use crate::services::{auth0, users};
 use crate::{errors, services};
 
