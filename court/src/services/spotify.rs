@@ -46,11 +46,8 @@ impl UserSpotifyApi {
     pub async fn new() -> Self {
         let creds = Credentials::from_env().expect("failed to get credentials from env");
 
-        let oauth = OAuth {
-            scopes: scopes!("user-read-currently-playing", "user-top-read"),
-            redirect_uri: "http://localhost:8000/callback".to_owned(),
-            ..Default::default()
-        };
+        let oauth = OAuth::from_env(scopes!("user-read-currently-playing", "user-top-read"))
+            .expect("oh no");
 
         UserSpotifyApi {
             auth_code: AuthCodeSpotify::with_config(creds, oauth, Config::default()),

@@ -39,6 +39,20 @@ export default function Landing(): React.JSX.Element {
                     >
                         check session
                     </button>
+
+                    <button
+                        className="c-btn"
+                        onClick={() => {
+                            newSessionClient()
+                                .getAuthUrl()
+                                .then((url) => console.log("the url:", url))
+                                .catch((e) => console.error("error: ", e));
+                            console.log("the session", session);
+                        }}
+                    >
+                        get auth url
+                    </button>
+
                     <a className="c-btn" href="/notlanding">
                         not landing
                     </a>

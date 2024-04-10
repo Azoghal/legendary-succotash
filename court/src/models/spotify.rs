@@ -11,3 +11,10 @@ use ts_rs::TS;
 pub struct Popularity {
     pub popularity: u32,
 }
+
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[serde(crate = "rocket::serde")]
+#[ts(export)]
+pub struct AuthUrl {
+    pub url: String,
+}
