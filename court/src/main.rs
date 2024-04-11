@@ -61,7 +61,8 @@ fn rocket() -> _ {
                 routes::auth0::auth0_redirect,
                 routes::auth0::auth0_callback,
                 routes::auth0::logged_in,
-                routes::spotify_example::sp_callback
+                routes::spotify_example::sp_callback,
+                routes::spotify_example::sp_callback_no_user
             ],
         )
         .attach(cors)

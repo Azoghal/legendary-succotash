@@ -8,6 +8,8 @@ use crate::{
     spotify::SpotifyApi,
 };
 
+use super::auth0::SessionUser;
+
 #[get("/artist-popularity/<id>")]
 pub async fn get_artist_popularity(
     id: &str,
@@ -26,7 +28,14 @@ pub async fn get_client_url(
 }
 
 #[get("/sp/callback")]
-pub async fn sp_callback() -> Result<response::Redirect, Status> {
-    info!("you successfully hit sp callback");
+pub async fn sp_callback(user: SessionUser) -> Result<response::Redirect, Status> {
+    info!("you successfully hit spotify callback with a user! We can now associate these!");
+    info!("Now we know {} can sign into a spotify account", user.name);
+    Ok(response::Redirect::to("/notlanding"))
+}
+
+#[get("/sp/callback", rank = 2)]
+pub async fn sp_callback_no_user() -> Result<response::Redirect, Status> {
+    info!("you successfully hit sp callback, but you didn't have a user session");
     Ok(response::Redirect::to("/"))
 }

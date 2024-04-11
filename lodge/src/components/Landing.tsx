@@ -3,7 +3,7 @@ import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
 import ExampleCard from "./gui/ExampleCard";
 import LoginButton from "./gui/LoginButton";
-import { useSession } from "./context/session";
+import { SessionType, useSession } from "./context/session";
 import { newSessionClient } from "../services/session";
 
 export default function Landing(): React.JSX.Element {
@@ -40,18 +40,20 @@ export default function Landing(): React.JSX.Element {
                         check session
                     </button>
 
-                    <button
-                        className="c-btn"
-                        onClick={() => {
-                            newSessionClient()
-                                .getAuthUrl()
-                                .then((url) => console.log("the url:", url))
-                                .catch((e) => console.error("error: ", e));
-                            console.log("the session", session);
-                        }}
-                    >
-                        get auth url
-                    </button>
+                    {session.sessionType == SessionType.USER && (
+                        <button
+                            className="c-btn"
+                            onClick={() => {
+                                newSessionClient()
+                                    .getAuthUrl()
+                                    .then((url) => console.log("the url:", url))
+                                    .catch((e) => console.error("error: ", e));
+                                console.log("the session", session);
+                            }}
+                        >
+                            get auth url
+                        </button>
+                    )}
 
                     <a className="c-btn" href="/notlanding">
                         not landing
