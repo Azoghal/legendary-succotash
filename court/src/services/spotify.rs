@@ -1,5 +1,11 @@
 use rocket::tokio;
-use rspotify::{scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth};
+use rspotify::{
+    clients::OAuthClient,
+    model::{AdditionalType, Country, Market, PlayableItem},
+    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth,
+};
+
+use crate::errors;
 
 pub struct SpotifyApi {
     pub client: ClientCredsSpotify,
@@ -37,6 +43,7 @@ impl SpotifyApi {
 ///    is that this doesn't require the user to log in, and that it's a simpler
 ///    procedure.
 
+// TODO need to give this a request guard so we can build it from session user rather than having one global one
 pub struct UserSpotifyApi {
     pub auth_code: AuthCodeSpotify,
 }
@@ -63,5 +70,42 @@ impl UserSpotifyApi {
         info!("the bob url {}", bob_url);
 
         bob_url
+    }
+
+    pub async fn get_the_token(&self, code: &str) -> Result<(), errors::Error> {
+        // think we should request a refresh token as well, whack that in the db,
+        // and then we can load it and request a token lazily when needed on each request.
+        let res = self.auth_code.request_token(code).await?;
+        Ok(res)
+    }
+
+    pub async fn do_something_interesting(&self) -> Result<(), errors::Error> {
+        let market = Market::Country(Country::UnitedKingdom);
+        let additional_types = [AdditionalType::Track, AdditionalType::Episode];
+
+        let res = self
+            .auth_code
+            .current_playing(Some(market), Some(&additional_types))
+            .await?;
+        let Some(r) = res else {
+            info!("no currently playing");
+            return Ok(());
+        };
+
+        let Some(i) = r.item else {
+            info!("no current item");
+            return Ok(());
+        };
+
+        match i {
+            PlayableItem::Track(t) => {
+                info!("yer playing this song: {}", t.name)
+            }
+            PlayableItem::Episode(e) => {
+                info!("yer listening to this episdoe: {}", e.name)
+            }
+        }
+
+        Ok(())
     }
 }

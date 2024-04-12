@@ -27,10 +27,16 @@ pub async fn get_client_url(
     Ok(Json(AuthUrl { url: res }))
 }
 
-#[get("/sp/callback")]
-pub async fn sp_callback(user: SessionUser) -> Result<response::Redirect, Status> {
+#[get("/sp/callback?<code>")]
+pub async fn sp_callback(
+    code: String,
+    user: SessionUser,
+    spotify: &State<UserSpotifyApi>,
+) -> Result<response::Redirect, errors::Error> {
     info!("you successfully hit spotify callback with a user! We can now associate these!");
     info!("Now we know {} can sign into a spotify account", user.name);
+    spotify.get_the_token(&code).await?;
+    spotify.do_something_interesting().await?;
     Ok(response::Redirect::to("/notlanding"))
 }
 
