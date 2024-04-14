@@ -75,11 +75,17 @@ impl UserSpotifyApi {
     pub async fn get_the_token(&self, code: &str) -> Result<(), errors::Error> {
         // think we should request a refresh token as well, whack that in the db,
         // and then we can load it and request a token lazily when needed on each request.
-        let res = self.auth_code.request_token(code).await?;
-        Ok(res)
+        self.auth_code.request_token(code).await?;
+        let token_opt = self.auth_code.read_token_cache(true).await?;
+        if let Some(token) = token_opt {
+            info!("the token's refresh code {:?}", token.refresh_token);
+        }
+        // And here we would write the token to the DB
+        // Can we make a new token just from the refresh token or must i actually db-ify the entire token?
+        Ok(())
     }
 
-    pub async fn do_something_interesting(&self) -> Result<(), errors::Error> {
+    pub async fn get_current_playing(&self) -> Result<Option<String>, errors::Error> {
         let market = Market::Country(Country::UnitedKingdom);
         let additional_types = [AdditionalType::Track, AdditionalType::Episode];
 
@@ -89,23 +95,23 @@ impl UserSpotifyApi {
             .await?;
         let Some(r) = res else {
             info!("no currently playing");
-            return Ok(());
+            return Ok(None);
         };
 
         let Some(i) = r.item else {
             info!("no current item");
-            return Ok(());
+            return Ok(None);
         };
 
         match i {
             PlayableItem::Track(t) => {
-                info!("yer playing this song: {}", t.name)
+                info!("yer playing this song: {}", t.name);
+                Ok(Some(t.name))
             }
             PlayableItem::Episode(e) => {
-                info!("yer listening to this episdoe: {}", e.name)
+                info!("yer listening to this episdoe: {}", e.name);
+                Ok(Some(e.name))
             }
         }
-
-        Ok(())
     }
 }

@@ -19,4 +19,5 @@ pub struct User {
     pub id: i32,
     pub auth0subject: String,
     pub name: String,
+    pub spotify_refresh_token: Option<String>,
 }

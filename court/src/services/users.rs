@@ -3,6 +3,7 @@ use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 use super::establish_connection;
 use crate::errors;
 use crate::models::users::{NewUser, User};
+use crate::schema::users::star;
 
 pub fn create_user(new_user: NewUser) -> Result<User, errors::Error> {
     use crate::schema::users::dsl::*;
@@ -61,4 +62,19 @@ pub fn get_or_create_user(new_user: NewUser) -> Result<User, errors::Error> {
             create_user(new_user)
         }
     }
+}
+
+pub fn set_user_refresh_token(
+    user_id: i32,
+    new_refresh_token: Option<String>,
+) -> Result<(), errors::Error> {
+    use crate::schema::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    diesel::update(users.filter(id.eq(user_id)))
+        .set(spotify_refresh_token.eq(new_refresh_token))
+        .execute(connection);
+
+    Ok(())
 }

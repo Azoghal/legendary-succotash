@@ -46,6 +46,7 @@ fn rocket() -> _ {
             routes![
                 routes::spotify_example::get_artist_popularity,
                 routes::spotify_example::get_client_url,
+                routes::spotify_example::get_current_playing,
                 routes::session::session_user,
                 routes::session::session_user_fail
             ],

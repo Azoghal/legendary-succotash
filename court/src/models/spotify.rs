@@ -1,4 +1,5 @@
 use rocket::serde::{Deserialize, Serialize};
+use rspotify::model::PlayableItem;
 use ts_rs::TS;
 
 // See ts-rs/example/src/lib.rs TODO:
@@ -17,4 +18,11 @@ pub struct Popularity {
 #[ts(export)]
 pub struct AuthUrl {
     pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[serde(crate = "rocket::serde")]
+#[ts(export)]
+pub struct CurrentPlaying {
+    pub title: String,
 }
