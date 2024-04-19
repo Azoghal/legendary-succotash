@@ -1,5 +1,4 @@
 use rocket::serde::{Deserialize, Serialize};
-use rspotify::model::PlayableItem;
 use ts_rs::TS;
 
 // See ts-rs/example/src/lib.rs TODO:

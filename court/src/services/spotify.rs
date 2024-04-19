@@ -7,6 +7,8 @@ use rspotify::{
 
 use crate::errors;
 
+use super::users;
+
 pub struct SpotifyApi {
     pub client: ClientCredsSpotify,
 }
@@ -56,8 +58,15 @@ impl UserSpotifyApi {
         let oauth = OAuth::from_env(scopes!("user-read-currently-playing", "user-top-read"))
             .expect("oh no");
 
+        let conf = Config {
+            token_cached: true,
+
+            ..Default::default()
+        };
+        // TODO might need to have user specific cache paths? it's a bit yucky
+
         UserSpotifyApi {
-            auth_code: AuthCodeSpotify::with_config(creds, oauth, Config::default()),
+            auth_code: AuthCodeSpotify::with_config(creds, oauth, conf),
         }
     }
 
@@ -72,19 +81,41 @@ impl UserSpotifyApi {
         bob_url
     }
 
-    pub async fn get_the_token(&self, code: &str) -> Result<(), errors::Error> {
-        // think we should request a refresh token as well, whack that in the db,
-        // and then we can load it and request a token lazily when needed on each request.
+    // get_the_token requests a token for the current user, and attempts to store it in the DB
+    // it only returns an error in the case that fetching the code fails.
+    // failure to write to the DB is ignored.
+    pub async fn get_the_token(&self, user_id: i32, code: &str) -> Result<(), errors::Error> {
         self.auth_code.request_token(code).await?;
-        let token_opt = self.auth_code.read_token_cache(true).await?;
-        if let Some(token) = token_opt {
-            info!("the token's refresh code {:?}", token.refresh_token);
-        }
-        // And here we would write the token to the DB
-        // Can we make a new token just from the refresh token or must i actually db-ify the entire token?
+
+        let _ = self.save_user_token(user_id).await;
         Ok(())
     }
 
+    // save_user_token reads the token from the cache and stores it in the database
+    pub async fn save_user_token(&self, user_id: i32) -> Result<(), errors::Error> {
+        let token_opt = match self.auth_code.read_token_cache(true).await {
+            Ok(tok) => tok,
+            Err(e) => {
+                error!("oh no, the token could not be read {:?}", e);
+                return Err(e.into());
+            }
+        };
+        match token_opt {
+            Some(token) => {
+                // And here we would write the token to the DB
+                // Can we make a new token just from the refresh token or must i actually db-ify the entire token?
+                info!("the token's refresh code {:?}", token.refresh_token);
+                users::set_user_refresh_token(user_id, token.refresh_token)?;
+                Ok(())
+            }
+            None => {
+                error!("got None as token_opt");
+                Err(errors::Error::NotFound("refresh token not found".into()))
+            }
+        }
+    }
+
+    // TODO move this somewhere else?
     pub async fn get_current_playing(&self) -> Result<Option<String>, errors::Error> {
         let market = Market::Country(Country::UnitedKingdom);
         let additional_types = [AdditionalType::Track, AdditionalType::Episode];

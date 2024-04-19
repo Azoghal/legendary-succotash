@@ -11,7 +11,7 @@ export default function TestToolTabBody(): JSX.Element {
 
     const getCurrentPlaying = useCallback(() => {
         newSpotifyExampleClient()
-            .getCurrentPlaying()
+            .getCurrentlyPlaying()
             .then((s) => setCurrentPlaying(s.title))
             .catch((e) => console.error("failed to get current playing", e));
     }, []);

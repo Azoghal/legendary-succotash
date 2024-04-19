@@ -48,7 +48,7 @@ pub async fn sp_callback(
 ) -> Result<response::Redirect, errors::Error> {
     info!("you successfully hit spotify callback with a user! We can now associate these!");
     info!("Now we know {} can sign into a spotify account", user.name);
-    spotify.get_the_token(&code).await?;
+    spotify.get_the_token(user.id, &code).await?;
     // spotify.get_current_playing().await?;
     Ok(response::Redirect::to("/notlanding"))
 }
