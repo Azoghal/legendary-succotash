@@ -1,11 +1,11 @@
-use rocket::tokio;
+use rocket::{serde::Serialize, tokio};
 use rspotify::{
-    clients::OAuthClient,
+    clients::{BaseClient, OAuthClient},
     model::{AdditionalType, Country, Market, PlayableItem},
-    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth,
+    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
 };
 
-use crate::errors;
+use crate::{errors, services::spotify_tokens};
 
 use super::users;
 
@@ -93,6 +93,27 @@ impl UserSpotifyApi {
 
     // save_user_token reads the token from the cache and stores it in the database
     pub async fn save_user_token(&self, user_id: i32) -> Result<(), errors::Error> {
+        let bob = self.auth_code.get_token();
+        let mut unbob = bob.lock().await.unwrap();
+
+        match (*unbob).clone() {
+            None => {}
+            Some(s) => {
+                // TODO oh yeah, now we're in business.
+                // It would be ideal if we could write the token directly to db
+                // it is serializable after all!
+            }
+        }
+        // let tok: Option<Token> = match unbob {
+        //     Ok(v) => *v,
+        //     Err(e) => {
+        //         error!("failed to acquire lock on token mutex {:?}", e);
+        //         return Err(errors::Error::Todo(
+        //             "failed to acquire lock on token mutex".into(),
+        //         ));
+        //     }
+        // };
+
         let token_opt = match self.auth_code.read_token_cache(true).await {
             Ok(tok) => tok,
             Err(e) => {
@@ -105,7 +126,8 @@ impl UserSpotifyApi {
                 // And here we would write the token to the DB
                 // Can we make a new token just from the refresh token or must i actually db-ify the entire token?
                 info!("the token's refresh code {:?}", token.refresh_token);
-                users::set_user_refresh_token(user_id, token.refresh_token)?;
+                // TODO turn the token into a string.
+                spotify_tokens::create_spotify_token(user_id, "token.refresh_token".into())?;
                 Ok(())
             }
             None => {

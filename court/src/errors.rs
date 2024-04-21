@@ -56,6 +56,9 @@ pub enum Error {
 
     #[error("unexpected encryption algorithm")]
     UnexpectedAlg(String),
+
+    #[error("TODO error")]
+    Todo(String),
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {

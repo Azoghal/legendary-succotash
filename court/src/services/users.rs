@@ -62,24 +62,3 @@ pub fn get_or_create_user(new_user: NewUser) -> Result<User, errors::Error> {
         }
     }
 }
-
-pub fn set_user_refresh_token(
-    user_id: i32,
-    new_refresh_token: Option<String>,
-) -> Result<(), errors::Error> {
-    use crate::schema::users::dsl::*;
-
-    let connection = &mut establish_connection();
-
-    let res = diesel::update(users.filter(id.eq(user_id)))
-        .set(spotify_refresh_token.eq(new_refresh_token))
-        .execute(connection);
-
-    match res {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            error!("set_user_refresh_token {:?}", e);
-            Ok(())
-        }
-    }
-}

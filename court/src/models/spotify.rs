@@ -1,4 +1,6 @@
+use diesel::{deserialize::Queryable, prelude::Insertable, Selectable};
 use rocket::serde::{Deserialize, Serialize};
+use rspotify::Token;
 use ts_rs::TS;
 
 // See ts-rs/example/src/lib.rs TODO:
@@ -24,4 +26,13 @@ pub struct AuthUrl {
 #[ts(export)]
 pub struct CurrentPlaying {
     pub title: String,
+}
+
+#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Debug, Clone)]
+#[diesel(table_name = crate::schema::spotify_tokens)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(crate = "rocket::serde")]
+pub struct SpotifyToken {
+    pub token: String,
+    pub user_id: i32,
 }

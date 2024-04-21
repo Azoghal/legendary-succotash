@@ -1,2 +1,6 @@
 -- Your SQL goes here
-alter table users add spotify_refresh_token text;
+create table spotify_tokens (
+    id serial primary key,
+    user_id serial references users(id) on delete cascade,
+    token text not null
+);
