@@ -58,7 +58,9 @@ fn rocket() -> _ {
                 routes::spotify_example::get_client_url,
                 routes::spotify_example::get_current_playing,
                 routes::session::session_user,
-                routes::session::session_user_fail
+                routes::session::session_user_fail,
+                // TODO remove
+                routes::spotify_example::temp_get_access_token,
             ],
         )
         .mount(
@@ -72,6 +74,7 @@ fn rocket() -> _ {
                 routes::auth0::auth0_redirect,
                 routes::auth0::auth0_callback,
                 routes::auth0::logged_in,
+                // TODO the following two should be in spotify_auth or similar
                 routes::spotify_example::sp_callback,
                 routes::spotify_example::sp_callback_no_user
             ],

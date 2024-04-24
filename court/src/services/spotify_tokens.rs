@@ -1,4 +1,4 @@
-use diesel::{RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, SelectableHelper};
 
 use super::establish_connection;
 use crate::errors;
@@ -23,4 +23,24 @@ pub fn create_spotify_token(
         .get_result(connection)?;
 
     Ok(res)
+}
+
+pub fn get_user_token(u_id: i32) -> Result<Option<SpotifyToken>, errors::Error> {
+    use crate::schema::spotify_tokens::dsl::{spotify_tokens, user_id};
+
+    let connection = &mut establish_connection();
+
+    let rows: Vec<SpotifyToken> = spotify_tokens
+        .limit(1)
+        .filter(user_id.eq(u_id))
+        .select(SpotifyToken::as_select())
+        .load(connection)?;
+
+    if rows.is_empty() {
+        return Ok(None);
+    }
+
+    let token = rows[0].clone();
+
+    Ok(Some(token))
 }

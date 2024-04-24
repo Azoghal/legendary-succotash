@@ -3,7 +3,7 @@ use rocket::{http::Status, response, serde::json::Json, State};
 use crate::{
     errors,
     models::spotify::{AuthUrl, CurrentPlaying, Popularity},
-    services::{spotify::UserSpotifyApi, spotify_example},
+    services::{spotify::UserSpotifyApi, spotify_example, spotify_tokens},
     spotify::SpotifyApi,
 };
 
@@ -40,6 +40,20 @@ pub async fn get_client_url(
     Ok(Json(AuthUrl { url: res }))
 }
 
+#[get("/temp_get_access_token")]
+pub async fn temp_get_access_token(
+    user: SessionUser,
+    spotify: &State<UserSpotifyApi>,
+) -> Result<Json<CurrentPlaying>, errors::Error> {
+    let Ok(res) = spotify.load_user_token(user.id).await else {
+        return Err(errors::Error::NotFound("Oh dear".into()));
+    };
+
+    Ok(Json(CurrentPlaying {
+        title: format!("Your code expires at {:?}", res.expires_at),
+    }))
+}
+
 #[get("/sp/callback?<code>")]
 pub async fn sp_callback(
     code: String,
@@ -48,7 +62,7 @@ pub async fn sp_callback(
 ) -> Result<response::Redirect, errors::Error> {
     info!("you successfully hit spotify callback with a user! We can now associate these!");
     info!("Now we know {} can sign into a spotify account", user.name);
-    spotify.get_access_token(user.id, &code).await?;
+    spotify.get_new_user_token(user.id, &code).await?;
     // spotify.get_current_playing().await?;
     Ok(response::Redirect::to("/notlanding"))
 }

@@ -2,7 +2,7 @@ use rocket::tokio;
 use rspotify::{
     clients::{BaseClient, OAuthClient},
     model::{AdditionalType, Country, Market, PlayableItem},
-    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth,
+    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
 };
 
 use crate::{errors, services::spotify_tokens};
@@ -68,10 +68,10 @@ impl UserSpotifyApi {
         }
     }
 
-    // get_access_token requests a token for the current user, and attempts to store it in the DB
+    // get_new_user_token requests a token for the current user, and attempts to store it in the DB
     // it only returns an error in the case that fetching the code fails.
     // failure to write to the DB is ignored.
-    pub async fn get_access_token(&self, user_id: i32, code: &str) -> Result<(), errors::Error> {
+    pub async fn get_new_user_token(&self, user_id: i32, code: &str) -> Result<(), errors::Error> {
         self.auth_code.request_token(code).await?;
 
         let _ = self.save_user_token(user_id).await;
@@ -99,6 +99,20 @@ impl UserSpotifyApi {
                     }
                 }
             }
+        }
+    }
+
+    pub async fn load_user_token(&self, user_id: i32) -> Result<Token, errors::Error> {
+        let loaded_token = spotify_tokens::get_user_token(user_id)?;
+        match loaded_token {
+            Some(tok) => {
+                let token_text = &tok.token;
+                let token: Token = rocket::serde::json::from_str(token_text)?;
+                Ok(token)
+            }
+            None => Err(errors::Error::NotFound(
+                "user access token not found".into(),
+            )),
         }
     }
 
