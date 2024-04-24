@@ -3,7 +3,7 @@ use rocket::{http::Status, response, serde::json::Json, State};
 use crate::{
     errors,
     models::spotify::{AuthUrl, CurrentPlaying, Popularity},
-    services::{spotify::UserSpotifyApi, spotify_example, spotify_tokens},
+    services::{spotify::UserSpotifyApi, spotify_example},
     spotify::SpotifyApi,
 };
 

@@ -21,6 +21,14 @@ class SpotifyExampleClient {
             .then((response) => {console.log("bobly bobly",response); return response.json()})
             .then((json) => json as CurrentPlaying);
     }
+
+    async getTempTokenDetail(): Promise<CurrentPlaying> {
+        const baseUrl = "http://localhost:8000/api/v1"
+        const route = "/temp_get_access_token"
+        return fetch(baseUrl + route)
+            .then((response) => {console.log("bobly bobly",response); return response.json()})
+            .then((json) => json as CurrentPlaying);
+    }
 }
 
 export function newSpotifyExampleClient(): SpotifyExampleClient {
