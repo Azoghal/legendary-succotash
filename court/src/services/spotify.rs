@@ -1,13 +1,11 @@
-use rocket::{serde::Serialize, tokio};
+use rocket::tokio;
 use rspotify::{
     clients::{BaseClient, OAuthClient},
     model::{AdditionalType, Country, Market, PlayableItem},
-    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
+    scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth,
 };
 
 use crate::{errors, services::spotify_tokens};
-
-use super::users;
 
 pub struct SpotifyApi {
     pub client: ClientCredsSpotify,
@@ -70,21 +68,10 @@ impl UserSpotifyApi {
         }
     }
 
-    pub fn have_a_go(&self) -> String {
-        let bob_url = self
-            .auth_code
-            .get_authorize_url(true)
-            .expect("failed to get authorize url");
-
-        info!("the bob url {}", bob_url);
-
-        bob_url
-    }
-
-    // get_the_token requests a token for the current user, and attempts to store it in the DB
+    // get_access_token requests a token for the current user, and attempts to store it in the DB
     // it only returns an error in the case that fetching the code fails.
     // failure to write to the DB is ignored.
-    pub async fn get_the_token(&self, user_id: i32, code: &str) -> Result<(), errors::Error> {
+    pub async fn get_access_token(&self, user_id: i32, code: &str) -> Result<(), errors::Error> {
         self.auth_code.request_token(code).await?;
 
         let _ = self.save_user_token(user_id).await;
@@ -93,46 +80,24 @@ impl UserSpotifyApi {
 
     // save_user_token reads the token from the cache and stores it in the database
     pub async fn save_user_token(&self, user_id: i32) -> Result<(), errors::Error> {
-        let bob = self.auth_code.get_token();
-        let mut unbob = bob.lock().await.unwrap();
+        let token_mutex = self.auth_code.get_token();
+        let token_lock_acquired = token_mutex.lock().await.unwrap();
 
-        match (*unbob).clone() {
-            None => {}
-            Some(s) => {
-                // TODO oh yeah, now we're in business.
-                // It would be ideal if we could write the token directly to db
-                // it is serializable after all!
-            }
-        }
-        // let tok: Option<Token> = match unbob {
-        //     Ok(v) => *v,
-        //     Err(e) => {
-        //         error!("failed to acquire lock on token mutex {:?}", e);
-        //         return Err(errors::Error::Todo(
-        //             "failed to acquire lock on token mutex".into(),
-        //         ));
-        //     }
-        // };
-
-        let token_opt = match self.auth_code.read_token_cache(true).await {
-            Ok(tok) => tok,
-            Err(e) => {
-                error!("oh no, the token could not be read {:?}", e);
-                return Err(e.into());
-            }
-        };
-        match token_opt {
+        match (*token_lock_acquired).clone() {
+            None => Err(errors::Error::NotFound("refresh token not found".into())),
             Some(token) => {
-                // And here we would write the token to the DB
-                // Can we make a new token just from the refresh token or must i actually db-ify the entire token?
-                info!("the token's refresh code {:?}", token.refresh_token);
-                // TODO turn the token into a string.
-                spotify_tokens::create_spotify_token(user_id, "token.refresh_token".into())?;
-                Ok(())
-            }
-            None => {
-                error!("got None as token_opt");
-                Err(errors::Error::NotFound("refresh token not found".into()))
+                // it's serializable, so serialize it and then get it as a json string.
+                let token_as_str = rocket::serde::json::to_string(&token);
+                match token_as_str {
+                    Err(e) => Err(errors::Error::Todo(format!(
+                        "failed to convert token for db write: {}",
+                        e
+                    ))),
+                    Ok(s) => {
+                        spotify_tokens::create_spotify_token(user_id, s)?;
+                        Ok(())
+                    }
+                }
             }
         }
     }

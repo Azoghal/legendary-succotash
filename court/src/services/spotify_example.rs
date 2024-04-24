@@ -12,6 +12,8 @@ pub async fn get_artist_popularity(id: &str, spotify: &SpotifyApi) -> Result<u32
 }
 
 pub async fn get_client_url(spotify: &UserSpotifyApi) -> Result<String, errors::Error> {
-    let res = spotify.have_a_go();
-    Ok(res)
+    spotify
+        .auth_code
+        .get_authorize_url(true)
+        .map_err(|e| e.into())
 }
