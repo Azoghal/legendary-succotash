@@ -144,8 +144,6 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
     }
 }
 
-// TODO rename
-// If privates can be accessed within module, make a new module
 pub struct UserSpotifyHelper {
     auth_code: AuthCodeSpotify,
 }
@@ -207,7 +205,7 @@ impl UserSpotifyHelper {
 
 #[rocket::async_trait]
 impl<'r> rocket::request::FromRequest<'r> for UserSpotifyHelper {
-    type Error = (); // TODO fix?
+    type Error = ();
     async fn from_request(
         _: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<UserSpotifyHelper, ()> {
