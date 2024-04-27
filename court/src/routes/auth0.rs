@@ -256,7 +256,7 @@ pub struct SessionUser {
 // and fetch user details for relevant session from db
 #[rocket::async_trait]
 impl<'r> rocket::request::FromRequest<'r> for SessionUser {
-    type Error = ();
+    type Error = (); // TODO fix
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<SessionUser, ()> {

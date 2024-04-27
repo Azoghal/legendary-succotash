@@ -20,7 +20,7 @@ pub async fn get_artist_popularity(
 
 #[get("/user/currently_playing")]
 pub async fn get_current_playing(
-    spotify: &State<UserSpotifyApi>,
+    spotify: UserSpotifyApi,
 ) -> Result<Json<CurrentPlaying>, errors::Error> {
     let res = spotify.get_current_playing().await?;
 
@@ -43,9 +43,8 @@ pub async fn get_client_url(
 #[get("/temp_get_access_token")]
 pub async fn temp_get_access_token(
     user: SessionUser,
-    spotify: &State<UserSpotifyApi>,
 ) -> Result<Json<CurrentPlaying>, errors::Error> {
-    let Ok(res) = spotify.load_user_token(user.id).await else {
+    let Ok(res) = UserSpotifyApi::load_user_token(user.id).await else {
         return Err(errors::Error::NotFound("Oh dear".into()));
     };
 

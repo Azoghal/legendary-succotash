@@ -1,11 +1,13 @@
-use rocket::tokio;
+use rocket::{http::Status, tokio};
 use rspotify::{
     clients::{BaseClient, OAuthClient},
     model::{AdditionalType, Country, Market, PlayableItem},
     scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
 };
 
-use crate::{errors, services::spotify_tokens};
+use crate::{
+    errors, models::spotify::SpotifyToken, routes::auth0::SessionUser, services::spotify_tokens,
+};
 
 pub struct SpotifyApi {
     pub client: ClientCredsSpotify,
@@ -57,11 +59,8 @@ impl UserSpotifyApi {
             .expect("oh no");
 
         let conf = Config {
-            token_cached: true,
-
             ..Default::default()
         };
-        // TODO might need to have user specific cache paths? it's a bit yucky
 
         UserSpotifyApi {
             auth_code: AuthCodeSpotify::with_config(creds, oauth, conf),
@@ -102,7 +101,7 @@ impl UserSpotifyApi {
         }
     }
 
-    pub async fn load_user_token(&self, user_id: i32) -> Result<Token, errors::Error> {
+    pub async fn load_user_token(user_id: i32) -> Result<Token, errors::Error> {
         let loaded_token = spotify_tokens::get_user_token(user_id)?;
         match loaded_token {
             Some(tok) => {
@@ -143,6 +142,38 @@ impl UserSpotifyApi {
             PlayableItem::Episode(e) => {
                 info!("yer listening to this episdoe: {}", e.name);
                 Ok(Some(e.name))
+            }
+        }
+    }
+}
+
+#[rocket::async_trait]
+impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
+    type Error = (); // TODO fix?
+    async fn from_request(
+        request: &'r rocket::request::Request<'_>,
+    ) -> rocket::request::Outcome<UserSpotifyApi, ()> {
+        let rocket::request::Outcome::Success(user) = SessionUser::from_request(request).await
+        else {
+            error!("failed to get user from request");
+            return rocket::request::Outcome::Error((Status::NotFound, ()));
+        };
+
+        error!("made it here!");
+
+        let tok = UserSpotifyApi::load_user_token(user.id).await;
+        match tok {
+            Ok(token) => {
+                error!("made it here 2!");
+                return rocket::request::Outcome::Success(UserSpotifyApi {
+                    // TODO this is lazy way, it's not ideal because
+                    // doesn't cope automatically with requesting new tokens upon expiry
+                    auth_code: AuthCodeSpotify::from_token(token),
+                });
+            }
+            Err(e) => {
+                error!("failed to get user token {}", e);
+                return rocket::request::Outcome::Error((Status::NotFound, ()));
             }
         }
     }

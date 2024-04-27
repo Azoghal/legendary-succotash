@@ -1,5 +1,6 @@
 use diesel::{deserialize::Queryable, prelude::Insertable, Selectable};
 use rocket::serde::{Deserialize, Serialize};
+use rspotify::Token;
 use ts_rs::TS;
 
 // See ts-rs/example/src/lib.rs TODO:
