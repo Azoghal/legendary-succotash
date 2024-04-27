@@ -5,9 +5,7 @@ use rspotify::{
     scopes, AuthCodeSpotify, ClientCredsSpotify, Config, Credentials, OAuth, Token,
 };
 
-use crate::{
-    errors, models::spotify::SpotifyToken, routes::auth0::SessionUser, services::spotify_tokens,
-};
+use crate::{errors, routes::auth0::SessionUser, services::spotify_tokens};
 
 pub struct SpotifyApi {
     pub client: ClientCredsSpotify,
