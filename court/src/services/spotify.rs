@@ -129,21 +129,12 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
                 auth_code.oauth = oauth;
                 auth_code.config = conf;
 
-                let res = auth_code.auto_reauth().await;
-                match res {
-                    Ok(()) => {
-                        info!("apparently refresh worked fine")
-                    }
-                    Err(e) => {
-                        error!("couldn't refresh?! {}", e)
-                    }
-                }
+                // let res = auth_code.auto_reauth().await;
+                // if let Err(e) = res {
+                //     error!("failed to auto refresh {e}")
+                // };
 
-                let spotify = UserSpotifyApi {
-                    // TODO this is lazy way, it's not ideal because
-                    // doesn't cope automatically with requesting new tokens upon expiry
-                    auth_code,
-                };
+                let spotify = UserSpotifyApi { auth_code };
 
                 rocket::request::Outcome::Success(spotify)
             }
