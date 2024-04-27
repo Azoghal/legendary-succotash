@@ -98,7 +98,7 @@ impl UserSpotifyApi {
 
 #[rocket::async_trait]
 impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
-    type Error = (); // TODO fix?
+    type Error = ();
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<UserSpotifyApi, ()> {

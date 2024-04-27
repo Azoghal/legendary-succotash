@@ -52,13 +52,11 @@ fn rocket() -> _ {
             "/api/v1",
             routes![
                 api_fallback,
+                routes::spotify_auth::get_client_url,
                 routes::spotify_example::get_artist_popularity,
-                routes::spotify_example::get_client_url,
                 routes::spotify_example::get_current_playing,
                 routes::session::session_user,
-                routes::session::session_user_fail,
-                // TODO remove
-                routes::spotify_example::temp_get_access_token,
+                routes::session::session_user_fail
             ],
         )
         .mount(
@@ -72,9 +70,8 @@ fn rocket() -> _ {
                 routes::auth0::auth0_redirect,
                 routes::auth0::auth0_callback,
                 routes::auth0::logged_in,
-                // TODO the following two should be in spotify_auth or similar
-                routes::spotify_example::sp_callback,
-                routes::spotify_example::sp_callback_no_user
+                routes::spotify_auth::sp_callback,
+                routes::spotify_auth::sp_callback_no_user
             ],
         )
         .attach(cors)
