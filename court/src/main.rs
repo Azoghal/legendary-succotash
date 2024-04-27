@@ -43,12 +43,10 @@ fn rocket() -> _ {
     // TODO come back and fix the cors rules
     let cors = rocket_cors::CorsOptions::default().to_cors().unwrap();
     let spotify = spotify::SpotifyApi::new();
-    let client_spotify = spotify::UserSpotifyApi::new();
     let auth0 = routes::auth0::Auth0::from_env().unwrap();
 
     rocket::build()
         .manage(spotify)
-        .manage(client_spotify)
         .manage(auth0) // I think for now, that this is fine...
         .mount(
             "/api/v1",

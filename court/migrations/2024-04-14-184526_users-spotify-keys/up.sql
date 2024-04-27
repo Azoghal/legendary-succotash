@@ -2,5 +2,6 @@
 create table spotify_tokens (
     id serial primary key,
     user_id serial references users(id) on delete cascade,
-    token text not null
+    token text not null,
+    unique(user_id)
 );
