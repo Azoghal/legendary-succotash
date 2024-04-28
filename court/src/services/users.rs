@@ -51,7 +51,7 @@ pub async fn get_user_by_auth0_subject(
 }
 
 pub async fn get_or_create_user(db: &SuccDb, new_user: NewUser) -> Result<User, errors::Error> {
-    let user_option = get_user_by_auth0_subject(&db, new_user.auth0subject.clone()).await?;
+    let user_option = get_user_by_auth0_subject(db, new_user.auth0subject.clone()).await?;
 
     match user_option {
         Some(user) => {
@@ -60,7 +60,7 @@ pub async fn get_or_create_user(db: &SuccDb, new_user: NewUser) -> Result<User, 
         }
         None => {
             info!("new user added and logged in");
-            create_user(&db, new_user).await
+            create_user(db, new_user).await
         }
     }
 }
