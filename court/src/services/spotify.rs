@@ -188,10 +188,10 @@ impl UserSpotifyHelper {
                 // it's serializable, so serialize it and then get it as a json string.
                 let token_as_str = rocket::serde::json::to_string(&token);
                 match token_as_str {
-                    Err(e) => Err(errors::Error::Todo(format!(
-                        "failed to convert token for db write: {}",
-                        e
-                    ))),
+                    Err(e) => {
+                        error!("failed to convert token json to string");
+                        Err(e.into())
+                    }
                     Ok(s) => {
                         spotify_tokens::create_spotify_token(user_id, s)?;
                         Ok(())
