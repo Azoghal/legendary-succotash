@@ -43,7 +43,6 @@ impl SpotifyApi {
 ///    is that this doesn't require the user to log in, and that it's a simpler
 ///    procedure.
 
-// TODO need to give this a request guard so we can build it from session user rather than having one global one
 pub struct UserSpotifyApi {
     pub auth_code: AuthCodeSpotify,
 }
@@ -63,7 +62,6 @@ impl UserSpotifyApi {
         }
     }
 
-    // TODO move this somewhere else?
     pub async fn get_current_playing(&self) -> Result<Option<String>, errors::Error> {
         info!("Called get_current_playing");
         let market = Market::Country(Country::UnitedKingdom);
@@ -84,14 +82,8 @@ impl UserSpotifyApi {
         };
 
         match i {
-            PlayableItem::Track(t) => {
-                info!("yer playing this song: {}", t.name);
-                Ok(Some(t.name))
-            }
-            PlayableItem::Episode(e) => {
-                info!("yer listening to this episdoe: {}", e.name);
-                Ok(Some(e.name))
-            }
+            PlayableItem::Track(t) => Ok(Some(t.name)),
+            PlayableItem::Episode(e) => Ok(Some(e.name)),
         }
     }
 }
@@ -111,11 +103,17 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
         let tok = UserSpotifyApi::load_user_token(user.id).await;
         match tok {
             Ok(token) => {
-                let creds = Credentials::from_env().expect("failed to get credentials from env");
+                let Some(creds) = Credentials::from_env() else {
+                    error!("failed to get credentials from env");
+                    return rocket::request::Outcome::Error((Status::InternalServerError, ()));
+                };
 
-                let oauth =
+                let Some(oauth) =
                     OAuth::from_env(scopes!("user-read-currently-playing", "user-top-read"))
-                        .expect("oh no");
+                else {
+                    error!("failed to create scopes");
+                    return rocket::request::Outcome::Error((Status::InternalServerError, ()));
+                };
 
                 let conf = Config {
                     token_refreshing: true,
@@ -137,6 +135,7 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
                 rocket::request::Outcome::Success(spotify)
             }
             Err(e) => {
+                // TODO we can rework this to redirect to login, but can't be bothered to do this yet.
                 error!("failed to get user token {}", e);
                 rocket::request::Outcome::Error((Status::NotFound, ()))
             }

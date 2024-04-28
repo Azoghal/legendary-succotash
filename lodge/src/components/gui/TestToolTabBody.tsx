@@ -8,20 +8,12 @@ export default function TestToolTabBody(): JSX.Element {
     const [activeTab, setActiveTab] = useState<string>(tabTitles[0]);
 
     const [currentPlaying, setCurrentPlaying] = useState<string>();
-    const [bobbis, setBobbis] = useState<string>();
 
     const getCurrentPlaying = useCallback(() => {
         newSpotifyExampleClient()
             .getCurrentlyPlaying()
             .then((s) => setCurrentPlaying(s.title))
             .catch((e) => console.error("failed to get current playing", e));
-    }, []);
-
-    const getAccessDetail = useCallback(() => {
-        newSpotifyExampleClient()
-            .getTempTokenDetail()
-            .then((s) => setBobbis(s.title))
-            .catch((e) => console.error("failed to get bobbis", e));
     }, []);
 
     const body = useMemo(() => {
@@ -43,18 +35,12 @@ export default function TestToolTabBody(): JSX.Element {
                             </button>
                             {currentPlaying ?? ""}
                         </div>
-                        <div>
-                            <button className="c-btn" onClick={getAccessDetail}>
-                                Get Access Detail
-                            </button>
-                            {bobbis ?? ""}
-                        </div>
                     </div>
                 );
             case tabTitles[1]:
                 return <div>This one's not got a card in it</div>;
         }
-    }, [activeTab, bobbis, currentPlaying, getAccessDetail, getCurrentPlaying]);
+    }, [activeTab, currentPlaying, getCurrentPlaying]);
 
     return (
         <TabContainer

@@ -18,14 +18,12 @@ pub async fn sp_callback(
     user: SessionUser,
     spotify_helper: UserSpotifyHelper,
 ) -> Result<response::Redirect, errors::Error> {
-    info!("you successfully hit spotify callback with a user! We can now associate these!");
-    info!("Now we know {} can sign into a spotify account", user.name);
     spotify_helper.get_new_user_token(user.id, &code).await?;
     Ok(response::Redirect::to("/notlanding"))
 }
 
 #[get("/sp/callback", rank = 2)]
 pub async fn sp_callback_no_user() -> Result<response::Redirect, Status> {
-    info!("you successfully hit sp callback, but you didn't have a user session");
+    info!("no user session");
     Ok(response::Redirect::to("/"))
 }
