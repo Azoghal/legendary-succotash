@@ -5,9 +5,9 @@ use ts_rs::TS;
 #[derive(Insertable, Debug)]
 #[diesel(table_name = crate::schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct NewUser<'a> {
-    pub name: &'a str,
-    pub auth0subject: &'a str,
+pub struct NewUser {
+    pub name: String,
+    pub auth0subject: String,
 }
 
 #[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Clone, TS)]

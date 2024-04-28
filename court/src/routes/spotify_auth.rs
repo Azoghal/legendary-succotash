@@ -1,6 +1,6 @@
 use rocket::{http::Status, response, serde::json::Json};
 
-use crate::{errors, models::spotify::AuthUrl, services::spotify::UserSpotifyHelper};
+use crate::{errors, models::spotify::AuthUrl, services::spotify::UserSpotifyHelper, SuccDb};
 
 use super::auth0::SessionUser;
 
@@ -14,11 +14,14 @@ pub async fn get_client_url(
 
 #[get("/sp/callback?<code>")]
 pub async fn sp_callback(
+    db: SuccDb,
     code: String,
     user: SessionUser,
     spotify_helper: UserSpotifyHelper,
 ) -> Result<response::Redirect, errors::Error> {
-    spotify_helper.get_new_user_token(user.id, &code).await?;
+    spotify_helper
+        .get_new_user_token(&db, user.id, &code)
+        .await?;
     Ok(response::Redirect::to("/notlanding"))
 }
 
