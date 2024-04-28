@@ -40,7 +40,7 @@ pub fn auth0_redirect(
 // The callback we get from Auth0
 // contains code and state.
 // state should be same as we sent
-#[get("/callback?<code>&<state>")]
+#[get("/auth/callback?<code>&<state>")]
 pub async fn auth0_callback(
     code: String,
     state: String,
@@ -249,6 +249,7 @@ async fn decode_jwt(jwt: &str, settings: &State<Auth0>) -> Result<IdTokenClaims,
 pub struct SessionUser {
     pub user_sub: String,
     pub name: String,
+    pub id: i32,
 }
 
 // To generate a session user for authenticated routes, we lookup the hashed jwt
@@ -284,6 +285,7 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
         let user = SessionUser {
             user_sub: session_user.auth0subject,
             name: session_user.name,
+            id: session_user.id,
         };
         rocket::outcome::Outcome::Success(user)
     }

@@ -11,6 +11,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    spotify_tokens (id) {
+        id -> Int4,
+        user_id -> Int4,
+        token -> Text,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         auth0subject -> Text,
@@ -19,5 +27,10 @@ diesel::table! {
 }
 
 diesel::joinable!(sessions -> users (user_id));
+diesel::joinable!(spotify_tokens -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(sessions, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    sessions,
+    spotify_tokens,
+    users,
+);

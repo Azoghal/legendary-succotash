@@ -1,13 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { t } from "i18next";
 import SuccotashLogo from "../assets/logo.png";
 import ExampleCard from "./gui/ExampleCard";
 import LoginButton from "./gui/LoginButton";
-import { useSession } from "./context/session";
+import { SessionType, useSession } from "./context/session";
 import { newSessionClient } from "../services/session";
 
 export default function Landing(): React.JSX.Element {
     const session = useSession();
+
+    const [authUrl, setAuthUrl] = useState<string>();
+
+    useEffect(() => {
+        newSessionClient()
+            .getAuthUrl()
+            .then((url) => {
+                console.log("the url:", url);
+                setAuthUrl(url);
+            })
+            .catch((e) => {
+                console.error("error: ", e);
+                setAuthUrl("");
+            });
+    }, []);
 
     return (
         <>
@@ -39,6 +54,16 @@ export default function Landing(): React.JSX.Element {
                     >
                         check session
                     </button>
+
+                    {/* TODO: turn this into a hard link to another page, where that page requires user to be authenticated.
+                        Will need session user to indicate this state. I think buttons that need spotify log in to work should be
+                        green/greyed out in some way to indicate to the user what they can do without logging in. */}
+                    {session.sessionType == SessionType.USER && (
+                        <a href={authUrl} className="c-btn">
+                            sign into spotify
+                        </a>
+                    )}
+
                     <a className="c-btn" href="/notlanding">
                         not landing
                     </a>

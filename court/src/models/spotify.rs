@@ -1,3 +1,4 @@
+use diesel::{deserialize::Queryable, prelude::Insertable, Selectable};
 use rocket::serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -10,4 +11,27 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct Popularity {
     pub popularity: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[serde(crate = "rocket::serde")]
+#[ts(export)]
+pub struct AuthUrl {
+    pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[serde(crate = "rocket::serde")]
+#[ts(export)]
+pub struct CurrentPlaying {
+    pub title: String,
+}
+
+#[derive(Queryable, Selectable, Insertable, Serialize, Deserialize, Debug, Clone)]
+#[diesel(table_name = crate::schema::spotify_tokens)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+#[serde(crate = "rocket::serde")]
+pub struct SpotifyToken {
+    pub token: String,
+    pub user_id: i32,
 }

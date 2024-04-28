@@ -1,5 +1,8 @@
 use dotenvy::dotenv;
-use rocket::fs::{relative, FileServer, NamedFile};
+use rocket::{
+    fs::{relative, FileServer, NamedFile},
+    serde::json::Json,
+};
 use services::spotify;
 use std::path::Path;
 
@@ -28,6 +31,12 @@ async fn fallback() -> Option<NamedFile> {
     .ok()
 }
 
+#[get("/", rank = 100)]
+async fn api_fallback() -> Json<()> {
+    error!("api route does not exist");
+    Json(())
+}
+
 #[launch]
 fn rocket() -> _ {
     dotenv().ok();
@@ -42,7 +51,10 @@ fn rocket() -> _ {
         .mount(
             "/api/v1",
             routes![
+                api_fallback,
+                routes::spotify_auth::get_client_url,
                 routes::spotify_example::get_artist_popularity,
+                routes::spotify_example::get_current_playing,
                 routes::session::session_user,
                 routes::session::session_user_fail
             ],
@@ -57,7 +69,9 @@ fn rocket() -> _ {
                 fallback,
                 routes::auth0::auth0_redirect,
                 routes::auth0::auth0_callback,
-                routes::auth0::logged_in
+                routes::auth0::logged_in,
+                routes::spotify_auth::sp_callback,
+                routes::spotify_auth::sp_callback_no_user
             ],
         )
         .attach(cors)
