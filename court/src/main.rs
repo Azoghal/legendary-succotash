@@ -3,11 +3,13 @@ use rocket::{
     fs::{relative, FileServer, NamedFile},
     serde::json::Json,
 };
+use rocket_sync_db_pools::database;
 use services::spotify;
 use std::path::Path;
 
 #[macro_use]
 extern crate rocket;
+extern crate diesel;
 
 mod routes;
 mod services;
@@ -18,6 +20,9 @@ pub mod schema;
 
 #[cfg(test)]
 mod tests;
+
+#[database("db")]
+pub struct SuccDb(diesel::PgConnection);
 
 // TODO consider whacking the whole frontend under some route, because at the moment we 200ok and serve the landing page for even completely wrong requests
 // fallback to serve index.html. This is hit for anything not in /assets and not a different rust route
@@ -37,6 +42,11 @@ async fn api_fallback() -> Json<()> {
     Json(())
 }
 
+// #[get("/well-i-knever")]
+// async fn well_no_call(db: SuccDb) {
+//     db.run(|c| c.insert)
+// }
+
 #[launch]
 fn rocket() -> _ {
     dotenv().ok();
@@ -46,6 +56,7 @@ fn rocket() -> _ {
     let auth0 = routes::auth0::Auth0::from_env().unwrap();
 
     rocket::build()
+        .attach(SuccDb::fairing())
         .manage(spotify)
         .manage(auth0) // I think for now, that this is fine...
         .mount(

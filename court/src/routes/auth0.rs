@@ -12,7 +12,7 @@ use std::env;
 
 use crate::models::{session::NewSession, users::NewUser};
 use crate::services::{auth0, users};
-use crate::{errors, services};
+use crate::{errors, services, SuccDb};
 
 pub fn random_state_string() -> String {
     use rand::{distributions::Alphanumeric, thread_rng};
@@ -42,6 +42,7 @@ pub fn auth0_redirect(
 // state should be same as we sent
 #[get("/auth/callback?<code>&<state>")]
 pub async fn auth0_callback(
+    db: SuccDb,
     code: String,
     state: String,
     cookies: &CookieJar<'_>,
@@ -88,11 +89,11 @@ pub async fn auth0_callback(
     };
 
     let user = NewUser {
-        auth0subject: &claims.sub,
-        name: &claims.nickname,
+        auth0subject: claims.sub,
+        name: claims.nickname,
     };
 
-    let Ok(user) = users::get_or_create_user(user) else {
+    let Ok(user) = users::get_or_create_user(&db, user).await else {
         error!("failed to get or create user");
         return Err(rocket::http::Status::InternalServerError);
     };
@@ -106,7 +107,7 @@ pub async fn auth0_callback(
         jwt,
     };
 
-    let Ok(_) = services::auth0::create_session(new_session) else {
+    let Ok(_) = services::auth0::create_session(&db, new_session).await else {
         error!("failed to create session");
         return Err(rocket::http::Status::InternalServerError);
     };
@@ -260,26 +261,32 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<SessionUser, ()> {
+        use rocket::request::Outcome;
+
         let Some(session_cookie) = request.cookies().get("session") else {
             info!("no session cookie present");
-            return rocket::request::Outcome::Forward(rocket::http::Status::Unauthorized);
+            return Outcome::Forward(rocket::http::Status::Unauthorized);
         };
         let Ok(session_id) = session_cookie.value().parse::<String>() else {
             error!("failed to parse cookie value");
-            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(rocket::http::Status::InternalServerError);
         };
 
-        println!("session id: {}", session_id);
+        let db = match SuccDb::from_request(request).await {
+            Outcome::Success(db) => db,
+            Outcome::Error(e) => return Outcome::Error(e),
+            Outcome::Forward(s) => return Outcome::Forward(s),
+        };
 
         // TODO replace this with a nicer single db query usinga join, once migrated over to using actual SQL
-        let Ok(Some(session)) = auth0::get_session_by_hash(session_id) else {
+        let Ok(Some(session)) = auth0::get_session_by_hash(&db, session_id).await else {
             error!("failed fetch session from db");
-            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(rocket::http::Status::InternalServerError);
         };
 
-        let Ok(session_user) = users::get_user(session.user_id) else {
+        let Ok(session_user) = users::get_user(&db, session.user_id).await else {
             error!("failed fetch session user from db");
-            return rocket::request::Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(rocket::http::Status::InternalServerError);
         };
 
         let user = SessionUser {
@@ -287,6 +294,6 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
             name: session_user.name,
             id: session_user.id,
         };
-        rocket::outcome::Outcome::Success(user)
+        Outcome::Success(user)
     }
 }

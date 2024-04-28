@@ -1,16 +1,19 @@
 use rocket::serde::json::Json;
 
-use crate::{errors, models::users::User, services::users::get_user_by_auth0_subject};
+use crate::{errors, models::users::User, services::users::get_user_by_auth0_subject, SuccDb};
 
 use super::auth0::SessionUser;
 
 #[get("/session_user")]
-pub async fn session_user(user: SessionUser) -> Result<Json<Option<User>>, errors::Error> {
+pub async fn session_user(
+    db: SuccDb,
+    user: SessionUser,
+) -> Result<Json<Option<User>>, errors::Error> {
     info!(
         "If you see this, then the request guard worked! {}",
         user.user_sub
     );
-    let user = get_user_by_auth0_subject(&user.user_sub)?;
+    let user = get_user_by_auth0_subject(&db, user.user_sub).await?;
     Ok(Json(user))
 }
 
