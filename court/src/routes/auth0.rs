@@ -261,15 +261,16 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
     async fn from_request(
         request: &'r rocket::request::Request<'_>,
     ) -> rocket::request::Outcome<SessionUser, ()> {
+        use rocket::http::Status;
         use rocket::request::Outcome;
 
         let Some(session_cookie) = request.cookies().get("session") else {
             info!("no session cookie present");
-            return Outcome::Forward(rocket::http::Status::Unauthorized);
+            return Outcome::Forward(Status::Unauthorized);
         };
         let Ok(session_id) = session_cookie.value().parse::<String>() else {
             error!("failed to parse cookie value");
-            return Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(Status::InternalServerError);
         };
 
         let db = match SuccDb::from_request(request).await {
@@ -281,12 +282,12 @@ impl<'r> rocket::request::FromRequest<'r> for SessionUser {
         // TODO replace this with a nicer single db query usinga join, once migrated over to using actual SQL
         let Ok(Some(session)) = auth0::get_session_by_hash(&db, session_id).await else {
             error!("failed fetch session from db");
-            return Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(Status::InternalServerError);
         };
 
         let Ok(session_user) = users::get_user(&db, session.user_id).await else {
             error!("failed fetch session user from db");
-            return Outcome::Forward(rocket::http::Status::InternalServerError);
+            return Outcome::Forward(Status::InternalServerError);
         };
 
         let user = SessionUser {

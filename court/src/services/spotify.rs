@@ -113,14 +113,14 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
             Ok(token) => {
                 let Some(creds) = Credentials::from_env() else {
                     error!("failed to get credentials from env");
-                    return rocket::request::Outcome::Error((Status::InternalServerError, ()));
+                    return Outcome::Error((Status::InternalServerError, ()));
                 };
 
                 let Some(oauth) =
                     OAuth::from_env(scopes!("user-read-currently-playing", "user-top-read"))
                 else {
                     error!("failed to create scopes");
-                    return rocket::request::Outcome::Error((Status::InternalServerError, ()));
+                    return Outcome::Error((Status::InternalServerError, ()));
                 };
 
                 let conf = Config {
@@ -140,12 +140,12 @@ impl<'r> rocket::request::FromRequest<'r> for UserSpotifyApi {
 
                 let spotify = UserSpotifyApi { auth_code };
 
-                rocket::request::Outcome::Success(spotify)
+                Outcome::Success(spotify)
             }
             Err(e) => {
                 // TODO we can rework this to redirect to login, but can't be bothered to do this yet.
                 error!("failed to get user token {}", e);
-                rocket::request::Outcome::Error((Status::NotFound, ()))
+                Outcome::Error((Status::NotFound, ()))
             }
         }
     }
