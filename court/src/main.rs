@@ -7,6 +7,8 @@ use rocket_sync_db_pools::database;
 use services::spotify;
 use std::path::Path;
 
+use court::ts_client;
+
 #[macro_use]
 extern crate rocket;
 extern crate diesel;
@@ -41,6 +43,9 @@ async fn api_fallback() -> Json<()> {
     error!("api route does not exist");
     Json(())
 }
+
+#[ts_client(bill)]
+fn mock_boy() {}
 
 // #[get("/well-i-knever")]
 // async fn well_no_call(db: SuccDb) {
