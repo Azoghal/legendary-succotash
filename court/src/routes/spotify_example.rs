@@ -1,5 +1,7 @@
 use rocket::{serde::json::Json, State};
 
+use court::ts_client;
+
 use crate::{
     errors,
     models::spotify::{CurrentPlaying, Popularity},
@@ -7,6 +9,7 @@ use crate::{
     spotify::SpotifyApi,
 };
 
+#[ts_client("/artist-popularity", spotify)]
 #[get("/artist-popularity/<id>")]
 pub async fn get_artist_popularity(
     id: &str,

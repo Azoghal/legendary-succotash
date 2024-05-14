@@ -3,53 +3,23 @@
 
 use proc_macro::TokenStream;
 use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, Ident, Result, Token};
+use syn::{parse_macro_input, Ident, ItemFn, LitStr, Result, ReturnType, Token};
 
-use proc_macro2;
 use quote::{format_ident, quote};
 
-// Attrib keeps the route as a string (unfortunately a need to duplicate this from the api macro for rocket)
-// "route/may/include/<...>"
-struct TsClientAttrib(Ident);
+// Attrib is passed the route as a string, client name as an ident
+struct TsClientAttrib {
+    route: LitStr,
+    client_name: Ident,
+}
 
 impl Parse for TsClientAttrib {
     fn parse(input: ParseStream) -> Result<Self> {
-        // lookahead one, expect literal? or expect "?
-        input.parse().map(TsClientAttrib)
-    }
-}
-
-// TODO also store the name of the client for it to go into?
-// or maybe we can determine this from what file it is in?
-// hm
-// Input keeps the relevant details from function prototype
-// fn fn_name(arg: ArgType, arg_2: ArgType2) -> ResultType { ...
-struct TsClientInput {
-    fn_name: Ident,
-    args: std::vec::Vec<(Ident, Ident)>,
-    result_type: Option<Ident>,
-}
-
-impl Parse for TsClientInput {
-    fn parse(input: ParseStream) -> Result<Self> {
-        // TODO actually pay attention to the input
-        // Lookahead one, expect fn, then fn name, etc
-        let lookahead = input.lookahead1();
-        if lookahead.peek(Token![fn]) {
-            let _ = input.parse();
-            Ok(TsClientInput {
-                fn_name: format_ident!("bobis"),
-                args: vec![],
-                result_type: None,
-            })
-        } else {
-            Err(lookahead.error())
-        }
-        // Ok(TsClientInput {
-        //     fn_name: format_ident!("bobis"),
-        //     args: vec![],
-        //     result_type: None,
-        // })
+        // Parse a string literal followed by a comma and an identifier
+        let route: LitStr = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let client_name: Ident = input.parse()?;
+        Ok(TsClientAttrib { route, client_name })
     }
 }
 
@@ -60,15 +30,35 @@ impl Parse for TsClientInput {
 pub fn ts_client(attr: TokenStream, input: TokenStream) -> TokenStream {
     let original_input: proc_macro2::TokenStream = input.clone().into();
 
-    // let macro_attr: TsClientAttrib = parse_macro_input!(attr);
-    let macro_input: TsClientInput = parse_macro_input!(input);
+    let macro_attr = parse_macro_input!(attr as TsClientAttrib);
+    println!("Api Route: {}", macro_attr.route.value());
+    println!("Api client: {}", macro_attr.client_name);
 
-    // TODO the test name should be derived from the name of the fn
-    let test_fn = format_ident!(
-        "export_bindings_{}",
-        // macro_attr.0.to_string().to_lowercase(),
-        macro_input.fn_name.to_string().to_lowercase(),
-    );
+    let macro_input = parse_macro_input!(input as ItemFn);
+    let fn_name = &macro_input.sig.ident;
+    let fn_args = &macro_input.sig.inputs;
+
+    println!("Function name: {}", fn_name);
+
+    for input in fn_args {
+        match input {
+            syn::FnArg::Receiver(_) => println!("Self argument"),
+            syn::FnArg::Typed(pat_type) => {
+                let pat = &pat_type.pat;
+                let ty = &pat_type.ty;
+                println!("Argument name: {:?}", quote!(#pat).to_string());
+                println!("Argument type: {:?}", quote!(#ty).to_string());
+            }
+        }
+    }
+
+    let fn_return_type = match &macro_input.sig.output {
+        ReturnType::Default => "void".to_string(),
+        ReturnType::Type(_, ty) => quote!(#ty).to_string(),
+    };
+    println!("Return type: {}", fn_return_type);
+
+    let test_fn = format_ident!("export_bindings_{}", fn_name.to_string().to_lowercase(),);
 
     let output: proc_macro2::TokenStream = quote! {
         #original_input
@@ -76,7 +66,7 @@ pub fn ts_client(attr: TokenStream, input: TokenStream) -> TokenStream {
         #[cfg(test)]
         #[test]
         fn #test_fn() {
-
+            // TODO make this test append? the templated TS client to the right file?
             panic!("And this is evidence that the files should be generated")
         }
     };
