@@ -19,6 +19,8 @@ pub async fn get_artist_popularity(
     Ok(Json(Popularity { popularity: res }))
 }
 
+// TODO this macro invocation is not correct
+#[ts_client("/currently-playing", spotify)]
 #[get("/user/currently_playing")]
 pub async fn get_current_playing(
     spotify: UserSpotifyApi,
